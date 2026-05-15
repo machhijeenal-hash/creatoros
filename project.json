@@ -1,0 +1,25 @@
+{
+  "overview": "CreatorOS is an AI-powered creator operating system that helps content creators run their business with AI. It combines AI content generation, productivity tracking, content planning, and subscription management into a cinematic, premium SaaS experience.",
+  "features": [
+    "AI Studio with real-time word-by-word streaming (OpenAI)",
+    "Drag-and-drop Content Planner with pipeline statuses",
+    "Pomodoro Productivity System with streak tracking",
+    "Real-data Dashboard (no fake metrics)",
+    "Stripe subscriptions (Free / Pro / Elite tiers)",
+    "Internet Identity authentication",
+    "Settings with AI preferences and billing management",
+    "Cinematic dark futuristic UI with glassmorphism and Framer Motion animations"
+  ],
+  "category": "productivity",
+  "tags": [
+    "ai",
+    "creator",
+    "saas",
+    "productivity",
+    "content",
+    "openai",
+    "stripe",
+    "dashboard"
+  ],
+  "last_updated": "2026-05-15T11:35:26.304Z"
+}

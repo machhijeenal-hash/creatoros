@@ -1,0 +1,225 @@
+type http_request_result = 
+ record {
+   body: blob;
+   headers: vec http_header;
+   status: nat;
+ };
+type http_header = 
+ record {
+   name: text;
+   value: text;
+ };
+type UserSettings = 
+ record {
+   aiModel: text;
+   breakDuration: nat;
+   darkMode: bool;
+   focusDuration: nat;
+   maxTokens: nat;
+   temperature: float64;
+ };
+type UserRole = 
+ variant {
+   admin;
+   guest;
+   user;
+ };
+type UserProfile = 
+ record {
+   createdAt: Timestamp;
+   displayName: text;
+   email: text;
+   "principal": UserId;
+   tier: SubscriptionTier;
+   updatedAt: Timestamp;
+ };
+type UserId = principal;
+type TransformationOutput = 
+ record {
+   body: blob;
+   headers: vec http_header;
+   status: nat;
+ };
+type TransformationInput = 
+ record {
+   context: blob;
+   response: http_request_result;
+ };
+type Timestamp = int;
+type SubscriptionTier = 
+ variant {
+   Elite;
+   Free;
+   Pro;
+ };
+type StripeSessionStatus = 
+ variant {
+   completed: record {
+                response: text;
+                userPrincipal: opt text;
+              };
+   failed: record {error: text;};
+ };
+type StripeConfiguration = 
+ record {
+   allowedCountries: vec text;
+   secretKey: text;
+ };
+type ShoppingItem = 
+ record {
+   currency: text;
+   priceInCents: nat;
+   productDescription: text;
+   productName: text;
+   quantity: nat;
+ };
+type SessionType = 
+ variant {
+   Break;
+   Focus;
+ };
+type Result_5 = 
+ variant {
+   err: text;
+   ok: DailyTask;
+ };
+type Result_4 = 
+ variant {
+   err: text;
+   ok: AIGeneration;
+ };
+type Result_3 = 
+ variant {
+   err: text;
+   ok: UserProfile;
+ };
+type Result_2 = 
+ variant {
+   err: text;
+   ok: ProductivitySession;
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok: ContentItem;
+ };
+type Result = 
+ variant {
+   err: text;
+   ok: bool;
+ };
+type ProductivitySession = 
+ record {
+   completedAt: Timestamp;
+   durationMinutes: nat;
+   id: nat;
+   sessionType: SessionType;
+   userPrincipal: UserId;
+ };
+type Platform = 
+ variant {
+   Blog;
+   Instagram;
+   Other;
+   TikTok;
+   Twitter;
+   YouTube;
+ };
+type DashboardMetrics = 
+ record {
+   contentStreak: nat;
+   focusHoursThisWeek: float64;
+   nextScheduledContent: opt ContentItem;
+   productivityScore: nat;
+   recentGenerations: vec AIGeneration;
+   taskCompletionRate: float64;
+   weeklyContentCount: nat;
+ };
+type DailyTask = 
+ record {
+   completed: bool;
+   createdDate: Timestamp;
+   id: nat;
+   title: text;
+   userPrincipal: UserId;
+ };
+type ContentStatus = 
+ variant {
+   Editing;
+   Idea;
+   Posted;
+   Scheduled;
+   Scripting;
+ };
+type ContentItem = 
+ record {
+   createdAt: Timestamp;
+   deadline: opt Timestamp;
+   id: nat;
+   notes: text;
+   platform: Platform;
+   status: ContentStatus;
+   title: text;
+   updatedAt: Timestamp;
+   userPrincipal: UserId;
+ };
+type AIGenerationParams = 
+ record {
+   audience: text;
+   goal: text;
+   niche: text;
+   platform: text;
+   tone: text;
+ };
+type AIGeneration = 
+ record {
+   audience: text;
+   createdAt: Timestamp;
+   favorite: bool;
+   goal: text;
+   id: nat;
+   niche: text;
+   outputText: text;
+   platform: text;
+   saved: bool;
+   tone: text;
+   userPrincipal: UserId;
+ };
+service : {
+  _initializeAccessControl: () -> ();
+  assignCallerUserRole: (user: principal, role: UserRole) -> ();
+  createCheckoutSession: (items: vec ShoppingItem, successUrl: text,
+   cancelUrl: text) -> (text);
+  createContentItem: (title: text, platform: Platform, status: ContentStatus,
+   deadline: opt Timestamp, notes: text) -> (Result_1);
+  createDailyTask: (title: text, date: Timestamp) -> (Result_5);
+  createGeneration: (params: AIGenerationParams) -> (Result_4);
+  createOrUpdateUser: (displayName: text, email: text) -> (Result_3);
+  deleteContentItem: (id: nat) -> (Result);
+  deleteDailyTask: (id: nat) -> (Result);
+  getCallerUserRole: () -> (UserRole) query;
+  getDashboardMetrics: () -> (DashboardMetrics) query;
+  getStripeSessionStatus: (sessionId: text) -> (StripeSessionStatus);
+  getUserProfile: () -> (opt UserProfile) query;
+  isCallerAdmin: () -> (bool) query;
+  isOpenAIConfigured: () -> (bool) query;
+  isStripeConfigured: () -> (bool) query;
+  listContentItems: () -> (vec ContentItem) query;
+  listDailyTasks: (date: Timestamp) -> (vec DailyTask) query;
+  listGenerations: () -> (vec AIGeneration) query;
+  listProductivitySessions: (limit: nat) -> (vec ProductivitySession) query;
+  logProductivitySession: (durationMinutes: nat, sessionType: SessionType) ->
+   (Result_2);
+  setOpenAIApiKey: (key: text) -> ();
+  setStripeConfiguration: (config: StripeConfiguration) -> ();
+  toggleDailyTask: (id: nat) -> (Result);
+  transform: (input: TransformationInput) -> (TransformationOutput) query;
+  updateContentItem: (id: nat, title: text, platform: Platform, status:
+   ContentStatus, deadline: opt Timestamp, notes: text) -> (Result_1);
+  updateGenerationFavorite: (id: nat, favorite: bool) -> (Result);
+  updateGenerationSaved: (id: nat, saved: bool) -> (Result);
+  updateSubscriptionTier: (target: principal, tier: SubscriptionTier,
+   stripeSubId: text, stripeCustomerId: text, periodStart: Timestamp,
+   periodEnd: Timestamp) -> (Result);
+  updateUserSettings: (newSettings: UserSettings) -> (Result);
+}

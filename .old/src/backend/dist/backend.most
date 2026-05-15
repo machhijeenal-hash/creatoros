@@ -1,0 +1,144 @@
+// Version: 1.0.0
+type AIGeneration__945825876 =
+  {
+    audience : Text;
+    createdAt : Timestamp__301639476;
+    favorite : Bool;
+    goal : Text;
+    id : Nat;
+    niche : Text;
+    outputText : Text;
+    platform : Text;
+    saved : Bool;
+    tone : Text;
+    userPrincipal : UserId__158757552
+  };
+type ContentItem__658366793 =
+  {
+    createdAt : Timestamp__301639476;
+    deadline : ?Timestamp__301639476;
+    id : Nat;
+    notes : Text;
+    platform : Platform__195415487;
+    status : ContentStatus__360712143;
+    title : Text;
+    updatedAt : Timestamp__301639476;
+    userPrincipal : UserId__158757552
+  };
+type ContentStatus__360712143 =
+  {#Editing; #Idea; #Posted; #Scheduled; #Scripting};
+type DailyTask__546481505 =
+  {
+    completed : Bool;
+    createdDate : Timestamp__301639476;
+    id : Nat;
+    title : Text;
+    userPrincipal : UserId__158757552
+  };
+type Data__80296667<K, V> =
+  {var count : Nat__1040412405; kvs : [var ?(K, V)]};
+type Internal__41346355<K, V> =
+  {children : [var ?Node__1000929467<K, V>]; data : Data__80296667<K, V>};
+type Leaf__712614010<K, V> = {data : Data__80296667<K, V>};
+type Map__222667396<K, V> = Map__912772452<K, V>;
+type Map__709709801<K, V> =
+  {var root : Node__1000929467<K, V>; var size : Nat__1040412405};
+type Map__912772452<K, V> = Map__709709801<K, V>;
+type Nat__1040412405 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__1000929467<K, V> =
+  {#internal : Internal__41346355<K, V>; #leaf : Leaf__712614010<K, V>};
+type Platform__195415487 =
+  {#Blog; #Instagram; #Other; #TikTok; #Twitter; #YouTube};
+type ProductivitySession__973238678 =
+  {
+    completedAt : Timestamp__301639476;
+    durationMinutes : Nat;
+    id : Nat;
+    sessionType : SessionType__888483749;
+    userPrincipal : UserId__158757552
+  };
+type SessionType__888483749 = {#Break; #Focus};
+type StripeConfiguration__87721349 =
+  {allowedCountries : [Text]; secretKey : Text};
+type SubscriptionTier__75232000 = {#Elite; #Free; #Pro};
+type Subscription__1008300802 =
+  {
+    active : Bool;
+    currentPeriodEnd : Timestamp__301639476;
+    currentPeriodStart : Timestamp__301639476;
+    stripeCustomerId : Text;
+    stripeSubscriptionId : Text;
+    tier : SubscriptionTier__75232000
+  };
+type Timestamp__301639476 = Int;
+type UserId__158757552 = Principal;
+type UserProfile__277265826 =
+  {
+    createdAt : Timestamp__301639476;
+    displayName : Text;
+    email : Text;
+    principal : UserId__158757552;
+    tier : SubscriptionTier__75232000;
+    updatedAt : Timestamp__301639476
+  };
+type UserRole__1073662873 = {#admin; #guest; #user};
+type UserSettings__834796851 =
+  {
+    aiModel : Text;
+    breakDuration : Nat;
+    darkMode : Bool;
+    focusDuration : Nat;
+    maxTokens : Nat;
+    temperature : Float
+  };
+actor {
+  stable accessControlState :
+    {
+      var adminAssigned : Bool;
+      userRoles : Map__222667396<Principal, UserRole__1073662873>
+    };
+  stable contentItems :
+    {
+      var blockIndex : Nat__1040412405;
+      var blocks : [var [var ?ContentItem__658366793]];
+      var elementIndex : Nat__1040412405
+    };
+  stable contentState : {var nextGenId : Nat; var nextItemId : Nat};
+  stable generations :
+    {
+      var blockIndex : Nat__1040412405;
+      var blocks : [var [var ?AIGeneration__945825876]];
+      var elementIndex : Nat__1040412405
+    };
+  stable openAIApiKey : {var value : ?Text};
+  stable productivityState : {var nextSessionId : Nat; var nextTaskId : Nat};
+  stable profiles :
+    {
+      var root : Node__1000929467<Principal, UserProfile__277265826>;
+      var size : Nat__1040412405
+    };
+  stable sessions :
+    {
+      var blockIndex : Nat__1040412405;
+      var blocks : [var [var ?ProductivitySession__973238678]];
+      var elementIndex : Nat__1040412405
+    };
+  stable var stripeConfiguration : ?StripeConfiguration__87721349;
+  stable subscriptions :
+    {
+      var root : Node__1000929467<Principal, Subscription__1008300802>;
+      var size : Nat__1040412405
+    };
+  stable tasks :
+    {
+      var blockIndex : Nat__1040412405;
+      var blocks : [var [var ?DailyTask__546481505]];
+      var elementIndex : Nat__1040412405
+    };
+  stable userSettings :
+    {
+      var root : Node__1000929467<Principal, UserSettings__834796851>;
+      var size : Nat__1040412405
+    }
+};
