@@ -1,0 +1,1954 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Zeta Lab — an honest attempt at the Riemann Hypothesis</title>
+    <meta
+      name="description"
+      content="I did not solve the Riemann Hypothesis. Here is what a computer can actually verify about it, and exactly where every standard proof attempt breaks."
+    />
+    <style>
+      /* ---------- fonts ---------- */
+      @font-face {
+        font-family: "Space Grotesk";
+        src: url("./fonts/SpaceGrotesk.woff2") format("woff2");
+        font-weight: 300 700;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "Plus Jakarta Sans";
+        src: url("./fonts/PlusJakartaSans.woff2") format("woff2");
+        font-weight: 200 800;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: "JetBrains Mono";
+        src: url("./fonts/JetBrainsMono.woff2") format("woff2");
+        font-weight: 100 800;
+        font-display: swap;
+      }
+
+      /* ---------- tokens (OKLCH, per DESIGN.md) ---------- */
+      :root {
+        --bg: oklch(0.145 0 0);
+        --card: oklch(0.18 0 0);
+        --popover: oklch(0.22 0 0);
+        --fg: oklch(0.95 0 0);
+        --muted: oklch(0.58 0 0);
+        --primary: oklch(0.56 0.22 262);
+        --secondary: oklch(0.52 0.18 297);
+        --border: oklch(0.28 0 0);
+        --destructive: oklch(0.65 0.19 22);
+        --success: oklch(0.72 0.16 155);
+        --radius: 10px;
+        --ease: cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+        font-size: 15px;
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      .atmosphere {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        background:
+          radial-gradient(900px 520px at 15% -10%, oklch(0.56 0.22 262 / 0.16), transparent 70%),
+          radial-gradient(760px 480px at 92% 8%, oklch(0.52 0.18 297 / 0.14), transparent 70%),
+          radial-gradient(1000px 600px at 50% 120%, oklch(0.52 0.18 297 / 0.1), transparent 70%);
+      }
+      main,
+      header,
+      footer {
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ---------- typography ---------- */
+      h1,
+      h2,
+      h3,
+      .display {
+        font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+        letter-spacing: -0.02em;
+        line-height: 1.08;
+        margin: 0;
+      }
+      code,
+      .mono,
+      .num {
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+        font-variant-numeric: tabular-nums;
+      }
+      a {
+        color: var(--fg);
+        text-decoration-color: oklch(0.56 0.22 262 / 0.6);
+        text-underline-offset: 3px;
+      }
+      a:hover {
+        text-decoration-color: var(--primary);
+      }
+      .math {
+        font-family: "Space Grotesk", serif;
+        font-style: italic;
+        letter-spacing: 0.01em;
+      }
+
+      /* ---------- shell ---------- */
+      .wrap {
+        width: min(1160px, calc(100% - 48px));
+        margin-inline: auto;
+      }
+      header.topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(18px) saturate(140%);
+        background: oklch(0.145 0 0 / 0.72);
+        border-bottom: 1px solid oklch(0.28 0 0 / 0.8);
+      }
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        height: 62px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        font-size: 16px;
+      }
+      .brand-glyph {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border-radius: 9px;
+        background: linear-gradient(145deg, oklch(0.56 0.22 262 / 0.9), oklch(0.52 0.18 297 / 0.9));
+        box-shadow: 0 0 18px oklch(0.56 0.22 262 / 0.35);
+        font-size: 16px;
+        color: white;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 11px;
+        border-radius: 999px;
+        font-size: 11.5px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border: 1px solid oklch(0.28 0 0);
+        color: var(--muted);
+        background: oklch(0.22 0 0 / 0.6);
+        white-space: nowrap;
+      }
+      .pill.open {
+        color: oklch(0.8 0.14 25);
+        border-color: oklch(0.65 0.19 22 / 0.45);
+        background: oklch(0.65 0.19 22 / 0.1);
+      }
+      .pill.ok {
+        color: oklch(0.82 0.13 160);
+        border-color: oklch(0.72 0.16 155 / 0.4);
+        background: oklch(0.72 0.16 155 / 0.08);
+      }
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+        box-shadow: 0 0 8px currentColor;
+      }
+      .topbar .spacer {
+        flex: 1;
+      }
+      .topbar nav {
+        display: flex;
+        gap: 4px;
+      }
+      .topbar nav a {
+        font-size: 13px;
+        color: var(--muted);
+        text-decoration: none;
+        padding: 7px 10px;
+        border-radius: 7px;
+        transition: color 0.2s var(--ease), background 0.2s var(--ease);
+      }
+      .topbar nav a:hover {
+        color: var(--fg);
+        background: oklch(0.22 0 0 / 0.8);
+      }
+
+      /* ---------- glass ---------- */
+      .glass {
+        background: oklch(0.18 0 0 / 0.72);
+        backdrop-filter: blur(14px);
+        border: 1px solid oklch(0.28 0 0 / 0.9);
+        border-radius: var(--radius);
+      }
+      .glass-hover {
+        transition: border-color 0.25s var(--ease), background 0.25s var(--ease),
+          transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+      }
+      .glass-hover:hover {
+        border-color: oklch(0.4 0.05 262 / 0.9);
+        background: oklch(0.2 0 0 / 0.85);
+        box-shadow: 0 0 34px oklch(0.56 0.22 262 / 0.12);
+      }
+
+      /* ---------- hero ---------- */
+      .hero {
+        padding: 76px 0 40px;
+      }
+      .kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 11.5px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 22px;
+      }
+      .kicker::before {
+        content: "";
+        width: 34px;
+        height: 1px;
+        background: linear-gradient(90deg, var(--primary), transparent);
+      }
+      h1 {
+        font-size: clamp(38px, 6.2vw, 68px);
+        font-weight: 700;
+        max-width: 15ch;
+      }
+      h1 .grad {
+        background: linear-gradient(100deg, oklch(0.72 0.18 262), oklch(0.62 0.2 297) 60%, oklch(0.8 0.12 320));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .lede {
+        margin-top: 26px;
+        max-width: 62ch;
+        font-size: 17px;
+        color: oklch(0.78 0 0);
+      }
+      .lede strong {
+        color: var(--fg);
+        font-weight: 600;
+      }
+      .verdict {
+        margin-top: 30px;
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        padding: 18px 20px;
+        border-radius: var(--radius);
+        border: 1px solid oklch(0.65 0.19 22 / 0.35);
+        background: linear-gradient(180deg, oklch(0.65 0.19 22 / 0.09), oklch(0.65 0.19 22 / 0.03));
+      }
+      .verdict .mark {
+        font-family: "Space Grotesk";
+        font-size: 20px;
+        line-height: 1;
+        color: oklch(0.72 0.17 30);
+        margin-top: 2px;
+      }
+      .verdict p {
+        margin: 0;
+        font-size: 14.5px;
+        color: oklch(0.82 0 0);
+      }
+
+      /* ---------- stats ---------- */
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin: 42px 0 10px;
+      }
+      .stat {
+        padding: 20px 18px 18px;
+        border-radius: var(--radius);
+      }
+      .stat .v {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 30px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        background: linear-gradient(180deg, oklch(0.99 0 0), oklch(0.72 0.03 262));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .stat .k {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+        line-height: 1.45;
+      }
+      .stat .sub {
+        font-size: 11px;
+        color: oklch(0.5 0 0);
+        margin-top: 4px;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      /* ---------- sections ---------- */
+      section {
+        padding: 58px 0 8px;
+        scroll-margin-top: 78px;
+      }
+      .sec-head {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        margin-bottom: 22px;
+        flex-wrap: wrap;
+      }
+      .sec-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--primary);
+        letter-spacing: 0.1em;
+      }
+      h2 {
+        font-size: clamp(24px, 3vw, 34px);
+        font-weight: 700;
+      }
+      .sec-head p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        max-width: 60ch;
+      }
+      .prose {
+        max-width: 70ch;
+        color: oklch(0.78 0 0);
+        font-size: 15px;
+      }
+      .prose p {
+        margin: 0 0 14px;
+      }
+      .prose strong {
+        color: var(--fg);
+        font-weight: 600;
+      }
+      .prose em {
+        color: oklch(0.88 0 0);
+      }
+
+      /* ---------- grids ---------- */
+      .split {
+        display: grid;
+        grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+        gap: 16px;
+        align-items: start;
+      }
+      .card {
+        padding: 18px;
+        border-radius: var(--radius);
+        min-width: 0;
+      }
+      .card h3 {
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 600;
+        margin-bottom: 14px;
+      }
+      .canvas-wrap {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        background: oklch(0.12 0 0);
+        border: 1px solid oklch(0.24 0 0);
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        touch-action: none;
+        cursor: crosshair;
+      }
+
+      /* ---------- readouts ---------- */
+      .readout {
+        display: grid;
+        gap: 10px;
+      }
+      .ro-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        font-size: 13px;
+        padding-bottom: 9px;
+        border-bottom: 1px solid oklch(0.24 0 0);
+      }
+      .ro-row:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
+      .ro-row span:first-child {
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.02em;
+      }
+      .ro-row .num {
+        font-size: 13.5px;
+        color: var(--fg);
+      }
+      .verdict-line {
+        margin-top: 14px;
+        font-size: 12.5px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid oklch(0.72 0.16 155 / 0.3);
+        background: oklch(0.72 0.16 155 / 0.07);
+        color: oklch(0.85 0.1 160);
+        line-height: 1.5;
+      }
+      .verdict-line.bad {
+        border-color: oklch(0.65 0.19 22 / 0.4);
+        background: oklch(0.65 0.19 22 / 0.1);
+        color: oklch(0.82 0.14 30);
+      }
+
+      /* ---------- controls ---------- */
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 14px;
+        flex-wrap: wrap;
+      }
+      .ctl {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 3px;
+        border-radius: 2px;
+        background: oklch(0.3 0 0);
+        outline: none;
+        width: 190px;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--fg);
+        border: 2px solid var(--primary);
+        box-shadow: 0 0 12px oklch(0.56 0.22 262 / 0.7);
+        cursor: pointer;
+      }
+      input[type="range"]::-moz-range-thumb {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--fg);
+        border: 2px solid var(--primary);
+        cursor: pointer;
+      }
+      .btn {
+        font-family: inherit;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--fg);
+        background: oklch(0.22 0 0);
+        border: 1px solid oklch(0.32 0 0);
+        padding: 8px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s var(--ease);
+      }
+      .btn:hover {
+        border-color: oklch(0.56 0.22 262 / 0.8);
+        box-shadow: 0 0 18px oklch(0.56 0.22 262 / 0.2);
+      }
+      .btn.primary {
+        background: oklch(0.56 0.22 262 / 0.18);
+        border-color: oklch(0.56 0.22 262 / 0.55);
+      }
+
+      /* ---------- table ---------- */
+      .table-wrap {
+        max-height: 330px;
+        overflow: auto;
+        border-radius: 8px;
+        border: 1px solid oklch(0.24 0 0);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12.5px;
+      }
+      th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        text-align: right;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        background: oklch(0.16 0 0);
+        padding: 9px 12px;
+        border-bottom: 1px solid oklch(0.26 0 0);
+        font-weight: 500;
+        white-space: nowrap;
+      }
+      td {
+        text-align: right;
+        padding: 7px 12px;
+        border-bottom: 1px solid oklch(0.22 0 0);
+        font-family: "JetBrains Mono", monospace;
+        font-variant-numeric: tabular-nums;
+        color: oklch(0.85 0 0);
+        white-space: nowrap;
+      }
+      th:first-child,
+      td:first-child {
+        text-align: left;
+        color: var(--muted);
+      }
+      tbody tr:hover {
+        background: oklch(0.24 0 0 / 0.5);
+      }
+      .good {
+        color: oklch(0.82 0.13 160);
+      }
+      .dim {
+        color: var(--muted);
+      }
+
+      /* ---------- route cards ---------- */
+      .routes {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 8px;
+      }
+      .route {
+        padding: 20px;
+        border-radius: var(--radius);
+        position: relative;
+        overflow: hidden;
+      }
+      .route::after {
+        content: "✗";
+        position: absolute;
+        right: 16px;
+        top: 12px;
+        font-size: 15px;
+        color: oklch(0.65 0.19 22 / 0.75);
+        font-family: "JetBrains Mono", monospace;
+      }
+      .route h4 {
+        margin: 0 0 8px;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        padding-right: 26px;
+      }
+      .route .where {
+        font-size: 13.5px;
+        color: oklch(0.8 0 0);
+        margin: 0 0 10px;
+      }
+      .route .fails {
+        font-size: 12.5px;
+        color: oklch(0.78 0.1 30);
+        border-left: 2px solid oklch(0.65 0.19 22 / 0.6);
+        padding-left: 11px;
+        margin: 0;
+      }
+      .route .tag {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--secondary);
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      /* ---------- timeline ---------- */
+      .timeline {
+        margin-top: 8px;
+        border-left: 1px solid oklch(0.3 0 0);
+        padding-left: 0;
+        list-style: none;
+      }
+      .timeline li {
+        position: relative;
+        padding: 0 0 18px 24px;
+      }
+      .timeline li::before {
+        content: "";
+        position: absolute;
+        left: -4px;
+        top: 8px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: oklch(0.4 0 0);
+      }
+      .timeline li.key::before {
+        background: var(--primary);
+        box-shadow: 0 0 10px var(--primary);
+      }
+      .timeline .yr {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--primary);
+        margin-right: 10px;
+      }
+      .timeline .what {
+        font-size: 13.5px;
+        color: oklch(0.8 0 0);
+      }
+      .timeline .what b {
+        color: var(--fg);
+        font-weight: 600;
+      }
+
+      /* ---------- code ---------- */
+      pre {
+        background: oklch(0.12 0 0);
+        border: 1px solid oklch(0.24 0 0);
+        border-radius: 8px;
+        padding: 16px;
+        overflow-x: auto;
+        font-size: 12.5px;
+        line-height: 1.7;
+        color: oklch(0.84 0 0);
+        margin: 0 0 14px;
+      }
+      pre .c {
+        color: oklch(0.5 0 0);
+      }
+      pre .g {
+        color: oklch(0.8 0.13 160);
+      }
+
+      /* ---------- footer ---------- */
+      footer {
+        margin-top: 70px;
+        border-top: 1px solid oklch(0.24 0 0);
+        padding: 26px 0 60px;
+        color: oklch(0.5 0 0);
+        font-size: 12px;
+      }
+      footer .row {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+
+      /* ---------- motion ---------- */
+      .reveal {
+        opacity: 0;
+        transform: translateY(14px);
+        transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+      }
+      .reveal.in {
+        opacity: 1;
+        transform: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .reveal {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
+      @media (max-width: 940px) {
+        .split,
+        .routes,
+        .stats {
+          grid-template-columns: 1fr;
+        }
+        .topbar nav {
+          display: none;
+        }
+        .hero {
+          padding-top: 48px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="atmosphere"></div>
+
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <div class="brand">
+          <span class="brand-glyph">ζ</span>
+          Zeta&nbsp;Lab
+        </div>
+        <span class="pill open"><span class="dot"></span>unproven · 167 years</span>
+        <div class="spacer"></div>
+        <nav>
+          <a href="#object">the object</a>
+          <a href="#oscillation">Z(t)</a>
+          <a href="#counting">counting</a>
+          <a href="#primes">primes</a>
+          <a href="#hunt">the hunt</a>
+          <a href="#why">why it isn't a proof</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- ================= HERO ================= -->
+      <div class="wrap hero reveal">
+        <div class="kicker">An honest attempt · recorded 2026</div>
+        <h1>I tried to solve the <span class="grad">Riemann Hypothesis</span>.</h1>
+        <p class="lede">
+          I did not. <strong>Nobody has, in 167 years</strong> — and no amount of compute changes that,
+          because the hypothesis quantifies over <em>infinitely many</em> zeros while every computation
+          inspects only finitely many. So instead of pretending, here is the part that is real:
+          four experiments that <em>can</em> be run on a laptop, the numbers they produced,
+          and the precise line where each of the five standard proof strategies collapses.
+        </p>
+        <div class="verdict">
+          <span class="mark">∴</span>
+          <p>
+            <b>Verdict:</b> no proof, no counterexample, no new idea. What follows is
+            evidence — 100 zeros located to 25 digits, 52 zeros independently double-counted,
+            zero exceptions — plus an honest map of the wall everyone is standing in front of.
+            Evidence is not proof. The page says so every time it could be misread.
+          </p>
+        </div>
+      </div>
+
+      <div class="wrap stats reveal">
+        <div class="stat glass glass-hover">
+          <div class="v" data-count="100">0</div>
+          <div class="k">nontrivial zeros located and re-verified</div>
+          <div class="sub">|ζ(½+it)| &lt; 3e−13</div>
+        </div>
+        <div class="stat glass glass-hover">
+          <div class="v" data-count="52">0</div>
+          <div class="k">zeros below t = 150, counted two independent ways</div>
+          <div class="sub">both counts agree</div>
+        </div>
+        <div class="stat glass glass-hover">
+          <div class="v" data-count="0">0</div>
+          <div class="k">zeros found off the critical line</div>
+          <div class="sub">as predicted — evidence, not proof</div>
+        </div>
+        <div class="stat glass glass-hover">
+          <div class="v" data-count="167">0</div>
+          <div class="k">years since Riemann posed the problem</div>
+          <div class="sub">1859 → 2026 · still open</div>
+        </div>
+      </div>
+
+      <!-- ================= 01 OBJECT ================= -->
+      <section id="object">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="sec-num">01</span>
+            <h2>The object</h2>
+            <p>
+              ζ(s) = Σ n<sup>−s</sup> converges for Re s &gt; 1 and continues meromorphically
+              to the whole plane with a single pole at s = 1.
+            </p>
+          </div>
+
+          <div class="split reveal">
+            <div class="card glass">
+              <h3>log |ζ(σ + it)| across the critical strip</h3>
+              <div class="canvas-wrap">
+                <canvas id="strip" height="430"></canvas>
+              </div>
+              <div class="controls">
+                <label class="ctl">
+                  <span>t</span>
+                  <input id="strip-t" type="range" min="12" max="26" step="0.01" value="14.13" />
+                  <span class="num" id="strip-t-val">14.13</span>
+                </label>
+                <button class="btn primary" id="strip-hunt">hunt the minimum along σ</button>
+                <span class="dim" style="font-size: 11.5px">drag anywhere on the plot</span>
+              </div>
+            </div>
+
+            <div class="card glass">
+              <h3>probe</h3>
+              <div class="readout">
+                <div class="ro-row">
+                  <span>s</span><span class="num" id="ro-s">0.5000 + 14.1347 i</span>
+                </div>
+                <div class="ro-row">
+                  <span>|ζ(s)|</span><span class="num" id="ro-abs">—</span>
+                </div>
+                <div class="ro-row">
+                  <span>Re(s) − ½</span><span class="num" id="ro-gap">—</span>
+                </div>
+                <div class="ro-row">
+                  <span>nearest zero</span><span class="num" id="ro-near">—</span>
+                </div>
+                <div class="ro-row">
+                  <span>σ of the minimum at this t</span><span class="num" id="ro-min">—</span>
+                </div>
+              </div>
+              <div class="verdict-line" id="ro-verdict">
+                Drag the probe. Every genuine hole in the picture is a zero of ζ.
+              </div>
+              <p style="font-size: 12.5px; color: var(--muted); margin: 16px 0 0; line-height: 1.6">
+                The vertical dashed line is σ = ½. RH says: <em>every</em> hole in this strip sits exactly
+                on it. The functional equation ξ(s) = ξ(1−s) already forces the picture to be symmetric
+                about that line, which is why the holes come in mirror pairs — the question is whether
+                the pair ever separates.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 02 Z(t) ================= -->
+      <section id="oscillation">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="sec-num">02</span>
+            <h2>The oscillation on the line</h2>
+            <p>
+              Z(t) = e<sup>iθ(t)</sup>ζ(½+it) is <em>real</em> for real t, so the zeros on the critical
+              line are just the zeros of a real function of one variable.
+            </p>
+          </div>
+
+          <div class="card glass reveal">
+            <h3>Riemann–Siegel Z(t) — every sign change is a zero of ζ on σ = ½</h3>
+            <div class="canvas-wrap">
+              <canvas id="zplot" height="260"></canvas>
+            </div>
+            <div class="controls">
+              <label class="ctl">
+                <span>window start</span>
+                <input id="z-start" type="range" min="0" max="150" step="0.5" value="0" />
+                <span class="num" id="z-start-val">0.0</span>
+              </label>
+              <label class="ctl">
+                <span>width</span>
+                <input id="z-width" type="range" min="10" max="80" step="5" value="40" />
+                <span class="num" id="z-width-val">40</span>
+              </label>
+              <span class="dim" style="font-size: 11.5px">zeros shown: <span class="num" id="z-count">0</span></span>
+            </div>
+            <p style="font-size: 12.5px; color: var(--muted); margin: 14px 0 0; max-width: 78ch; line-height: 1.6">
+              The vertical strokes are the zeros γ<sub>n</sub> located by mpmath at 25 digits and
+              re-found here by bisection on sign changes. Look at the spacing — irregular, but with a
+              very specific rigidity: gaps repel zeros from each other. That repulsion is the
+              fingerprint of the zeros behaving like eigenvalues of a random Hermitian operator,
+              the strongest hint anyone has for <em>why</em> RH should be true.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 03 COUNTING ================= -->
+      <section id="counting">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="sec-num">03</span>
+            <h2>How do you know you didn't miss one?</h2>
+            <p>
+              You count. Twice. Once over the whole strip, once only on the line. If the two numbers
+              agree, there is no room left for a zero to hide.
+            </p>
+          </div>
+
+          <div class="split reveal">
+            <div class="card glass">
+              <h3>two independent counts</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>T</th>
+                      <th>zeros on σ = ½<br /><span class="dim">sign changes of Z</span></th>
+                      <th>zeros in the strip<br /><span class="dim">argument principle</span></th>
+                      <th>agree</th>
+                    </tr>
+                  </thead>
+                  <tbody id="count-body"></tbody>
+                </table>
+              </div>
+              <p style="font-size: 12.5px; color: var(--muted); margin: 14px 0 0; line-height: 1.6">
+                The winding number comes out at e.g. 52.0062 instead of 52: the excess is pure
+                discretisation of the contour (the boundary is sampled every 0.02). Rounded to an integer, it is exact —
+                and rounding is legitimate here because the winding number of a closed contour
+                is an integer.
+              </p>
+            </div>
+
+            <div class="card glass">
+              <h3>why this is the real method</h3>
+              <p class="prose" style="font-size: 13.5px">
+                The rectangle [−1.5, 2] × [0.5, T] contains no poles of ζ (the only pole, s = 1, has
+                imaginary part 0) and no trivial zeros (they sit at −2, −4, …). So the winding
+                number of ζ around its boundary counts <b>every</b> nontrivial zero with 0 &lt; Im s &lt; T.
+              </p>
+              <p class="prose" style="font-size: 13.5px">
+                Meanwhile the sign changes of Z(t) count only the zeros <b>on the line</b>.
+                Equality of the two counts leaves no zero unaccounted for.
+              </p>
+              <p class="prose" style="font-size: 13.5px; margin-bottom: 0">
+                <b>This is exactly how the published verifications reach 10<sup>13</sup> zeros</b>
+                (van de Lune–te Riele–Winter 1986, Gourdon 2004) — with interval arithmetic replacing
+                floating point, and Turing's method replacing the contour walk. My version is the
+                toy-sized, floating-point cousin: it demonstrates the mechanism, it does not
+                extend the frontier by a single zero.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 04 PRIMES ================= -->
+      <section id="primes">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="sec-num">04</span>
+            <h2>Why anyone cares</h2>
+            <p>The primes are a sum of the zeros. Literally.</p>
+          </div>
+
+          <div class="card glass reveal">
+            <h3>
+              ψ(x) = x − Σ<sub>ρ</sub> x<sup>ρ</sup>/ρ − log 2π − ½log(1−x<sup>−2</sup>)
+            </h3>
+            <div class="canvas-wrap">
+              <canvas id="psi" height="300"></canvas>
+            </div>
+            <div class="controls">
+              <label class="ctl">
+                <span>zeros used</span>
+                <input id="psi-k" type="range" min="0" max="100" step="1" value="25" />
+                <span class="num" id="psi-k-val">25</span>
+              </label>
+              <span class="dim" style="font-size: 11.5px">
+                rms error <span class="num" id="psi-rms">—</span> · max
+                <span class="num" id="psi-max">—</span>
+              </span>
+            </div>
+            <p style="font-size: 12.5px; color: var(--muted); margin: 14px 0 0; max-width: 82ch; line-height: 1.65">
+              The staircase is the exact Chebyshev function ψ(x) = Σ<sub>p<sup>k</sup> ≤ x</sub> log p,
+              computed from a sieve — no zeta involved. The smooth curve is built <em>only</em> from
+              zeros. Each zero ρ = ½ + iγ contributes a wave x<sup>1/2</sup>cos(γ log x)/|ρ|, and
+              stacking them rebuilds the primes.
+              <b>That is the whole argument for RH</b>: if some zero had Re ρ = ½ + δ, its wave would
+              grow like x<sup>½+δ</sup> and the primes would visibly drift off the line x. Every zero
+              found so far is exactly on the knife edge δ = 0 — which is what "the primes are as
+              well-behaved as a random process permits" means, made numerical.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 05 HUNT ================= -->
+      <section id="hunt">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="sec-num">05</span>
+            <h2>The counterexample hunt</h2>
+            <p>
+              If a zero were off the line, then at its ordinate t the function |ζ(σ + it)| would dip
+              to zero somewhere other than σ = ½. So: sweep σ, find the minimum, see where it lands.
+            </p>
+          </div>
+
+          <div class="split reveal">
+            <div class="card glass">
+              <h3>minimum of |ζ(σ + iγ<sub>n</sub>)| over σ ∈ (0,1), 40 zeros</h3>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>n</th>
+                      <th>γ<sub>n</sub></th>
+                      <th>arg min σ − ½</th>
+                      <th>|ζ| at min</th>
+                      <th>|ζ| at σ = ½ ± 0.1</th>
+                      <th>×  deeper</th>
+                    </tr>
+                  </thead>
+                  <tbody id="hunt-body"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card glass">
+              <h3>what the sweep says</h3>
+              <div class="readout">
+                <div class="ro-row">
+                  <span>max |arg min σ − ½|</span><span class="num" id="hunt-worst">—</span>
+                </div>
+                <div class="ro-row">
+                  <span>deepest |ζ| on the line</span><span class="num" id="hunt-deep">—</span>
+                </div>
+                <div class="ro-row">
+                  <span>|ζ| ten hundredths off</span><span class="num" id="hunt-off">—</span>
+                </div>
+                <div class="ro-row">
+                  <span>typical contrast ratio</span><span class="num" id="hunt-ratio">—</span>
+                </div>
+              </div>
+              <div class="verdict-line" id="hunt-verdict">
+                Every minimum lands on σ = ½.
+              </div>
+              <p style="font-size: 12.5px; color: var(--muted); margin: 16px 0 0; line-height: 1.6">
+                This is a <em>local</em> check: it confirms that at every known zero ordinate the
+                function really is zero on the line and strictly nonzero a little to either side.
+                It says nothing about ordinates nobody has looked at, and there are infinitely many
+                of those — which is precisely the gap between "verified" and "proved".
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 06 WHY NOT A PROOF ================= -->
+      <section id="why">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="sec-num">06</span>
+            <h2>Why none of this is a proof</h2>
+            <p>
+              Five strategies, five reasons they fail — and one of them is not a reason a computer
+              can fix.
+            </p>
+          </div>
+
+          <div class="prose reveal" style="margin-bottom: 26px">
+            <p>
+              A proof must cover <em>all</em> zeros. A computation covers the first N. For any N you
+              choose, there are infinitely many ordinates beyond it, and RH makes a claim about every
+              one of them. That is not a technicality — it is the reason the problem survived a century
+              and a half of Moore's law.
+            </p>
+          </div>
+
+          <div class="routes reveal">
+            <div class="route glass glass-hover">
+              <span class="tag">route 01 — brute force</span>
+              <h4>Verify more zeros</h4>
+              <p class="where">
+                From the first handful of zeros (Gram, 1903) to 10<sup>13</sup> (Gourdon, 2004). Every single one sits
+                on the line.
+              </p>
+              <p class="fails">
+                Fails because 10<sup>13</sup> is 0% of infinity. Any finite verification, however
+                large, is compatible with a counterexample at 10<sup>14</sup>.
+              </p>
+            </div>
+
+            <div class="route glass glass-hover">
+              <span class="tag">route 02 — positivity</span>
+              <h4>Li's criterion / Weil positivity</h4>
+              <p class="where">
+                RH ⇔ λ<sub>n</sub> ≥ 0 for all n, where λ<sub>n</sub> = Σ<sub>ρ</sub> [1 − (1 − 1/ρ)<sup>n</sup>];
+                equivalently, a certain quadratic form is positive semidefinite.
+              </p>
+              <p class="fails">
+                Fails because positivity must hold on an infinite-dimensional space. Numerics check a
+                finite truncation, and <em>every</em> truncation that has ever been tested is positive —
+                including for hypotheses that are false. This is where de Branges' attempts died too.
+              </p>
+            </div>
+
+            <div class="route glass glass-hover">
+              <span class="tag">route 03 — elementary reformulation</span>
+              <h4>Mertens: |M(x)| ≤ √x</h4>
+              <p class="where">
+                M(x) = Σ<sub>n≤x</sub> μ(n). Mertens conjectured |M(x)| ≤ √x, which implies RH.
+              </p>
+              <p class="fails">
+                Fails — and it is <em>known</em> to fail (Odlyzko–te Riele, 1985): M(x)/√x exceeds 1
+                somewhere below 10<sup>10<sup>20</sup></sup>. RH needs the weaker M(x) = O(x<sup>½+ε</sup>),
+                and no elementary argument gets there. Note the lesson: a plausible pattern, confirmed
+                numerically for millions of x, was false.
+              </p>
+            </div>
+
+            <div class="route glass glass-hover">
+              <span class="tag">route 04 — density</span>
+              <h4>Zero-density estimates</h4>
+              <p class="where">
+                Bound the number N(σ,T) of zeros with Re ρ ≥ σ. Ingham (1940) stood for 84 years;
+                Guth–Maynard (2024) broke it with decoupling: N(σ,T) ≤ T<sup>(30/13)(1−σ)+o(1)</sup>.
+              </p>
+              <p class="fails">
+                Fails structurally: any bound of the shape T<sup>c(1−σ)</sup> allows zeros off the line.
+                You can push the proven proportion of on-line zeros up (Levinson ⅓ in 1974, Conrey 40%
+                in 1989, ≈41.6% since, 67.25% reported in 2026) but never to 100%. Maynard himself:
+                there is "no pathway" from these techniques to the hypothesis.
+              </p>
+            </div>
+
+            <div class="route glass glass-hover">
+              <span class="tag">route 05 — spectral</span>
+              <h4>Hilbert–Pólya: find the operator</h4>
+              <p class="where">
+                If the zeros are the eigenvalues of a self-adjoint operator, they are automatically real —
+                i.e. confined to σ = ½. The statistics (GUE) scream that such an operator exists.
+              </p>
+              <p class="fails">
+                Fails because nobody has produced the operator, and no amount of zero statistics
+                determines one. The gap-repulsion we can measure is evidence for the analogy, not a
+                construction. (The same gap: "random matrix theory predicts it" is not "it is proved".)
+              </p>
+            </div>
+
+            <div class="route glass glass-hover" style="border-color: oklch(0.56 0.22 262 / 0.45)">
+              <span class="tag" style="color: var(--primary)">what would count</span>
+              <h4>A proof, if it arrives</h4>
+              <p class="where">
+                Either (a) a positivity theorem for a quadratic form / operator with infinitely many
+                degrees of freedom, or (b) an exact evaluation of a sum over all zeros, or (c) something
+                nobody has thought of.
+              </p>
+              <p class="fails" style="border-color: oklch(0.72 0.16 155 / 0.6); color: oklch(0.8 0.12 160)">
+                What would <em>not</em> count: more zeros, a longer computation, a neural network that
+                fits the zeros, or a pattern that holds for the first million cases. None of these can
+                address the infinite tail — and a page like this one is, by construction, in that list.
+              </p>
+            </div>
+          </div>
+
+          <div class="split reveal" style="margin-top: 34px">
+            <div class="card glass">
+              <h3>the record, in order</h3>
+              <ul class="timeline" id="timeline"></ul>
+            </div>
+            <div class="card glass">
+              <h3>the honest summary</h3>
+              <p class="prose" style="font-size: 13.5px">
+                I ran the experiments that exist. They agree with RH everywhere they can look.
+                That is worth exactly what it sounds like: <b>strong evidence about a finite region,
+                and no information about the infinite remainder.</b>
+              </p>
+              <p class="prose" style="font-size: 13.5px">
+                If you want a proof from this page, the only useful thing here is the negative map:
+                the five routes above are the ones that have been tried hardest, and the failure
+                modes are structural, not computational.
+              </p>
+              <p class="prose" style="font-size: 13.5px; margin-bottom: 0">
+                The one datum I find genuinely hopeful is not a zero count — it is the pair
+                correlation. The zeros behave like eigenvalues of <em>something</em>. Finding that
+                something is the open problem, and it is not a problem that a bigger computer closes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 07 REPRODUCE ================= -->
+      <section id="reproduce">
+        <div class="wrap">
+          <div class="sec-head reveal">
+            <span class="sec-num">07</span>
+            <h2>Reproduce it</h2>
+            <p>Everything on this page comes from the three files next to it.</p>
+          </div>
+
+          <div class="split reveal">
+            <div class="card glass">
+              <h3>the study</h3>
+              <pre><span class="c"># needs: pip install mpmath</span>
+python3 zeta_lab.py     <span class="c"># ~110 s, writes data.json</span>
+
+<span class="g">[E1] zeros located, max |Z(γ)| = 5.66e-14
+[E2] T=50   on-line=10   strip=10.0062 → 10   match=True
+     T=100  on-line=29   strip=29.0062 → 29   match=True
+     T=150  on-line=52   strip=52.0062 → 52   match=True
+[E3] max |argmin σ − ½| = 6.7e-16
+[E4] explicit formula, rms: 2.30 → 0.58 (100 zeros)</span></pre>
+              <h3 style="margin-top: 18px">the page's own arithmetic</h3>
+              <pre><span class="c"># every number quoted in the UI is re-checked</span>
+node verify_js.js
+<span class="g">PASS  |zeta_js − zeta_mpmath|            3.82e-13
+PASS  max |Z(γ_n)| at the 100 zeros       2.23e-13
+PASS  max |argmin_σ |ζ|| − ½              9.39e-04
+PASS  sign changes of Z on (0.5,150)            52
+all checks passed</span></pre>
+            </div>
+
+            <div class="card glass">
+              <h3>precision, honestly</h3>
+              <p class="prose" style="font-size: 13.5px">
+                The Python study runs at 25 decimal digits (mpmath). The browser cannot: it re-implements
+                ζ by Euler–Maclaurin summation and agrees with mpmath to about
+                <span class="num">4 × 10<sup>−13</sup></span> on the tested grid — plenty to draw a
+                picture, nowhere near enough to certify a zero-free region.
+              </p>
+              <p class="prose" style="font-size: 13.5px">
+                A certified computation would need interval arithmetic and Turing's method, which is a
+                different order of engineering. The point of this page is the shape of the argument,
+                not a new decimal digit.
+              </p>
+              <h3 style="margin-top: 18px">files</h3>
+              <div class="readout">
+                <div class="ro-row"><span>zeta_lab.py</span><span class="num dim">the four experiments</span></div>
+                <div class="ro-row"><span>zeta.js</span><span class="num dim">ζ in the browser</span></div>
+                <div class="ro-row"><span>verify_js.js</span><span class="num dim">cross-check vs mpmath</span></div>
+                <div class="ro-row"><span>data.json</span><span class="num dim">all raw results</span></div>
+                <div class="ro-row"><span>README.md</span><span class="num dim">the written argument</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap row">
+        <span>
+          <b style="color: oklch(0.7 0 0)">No proof was produced.</b> The Riemann Hypothesis remains open.
+        </span>
+        <span class="mono">ζ · verified to 25 digits with mpmath · page cross-checked to 4e−13</span>
+      </div>
+    </footer>
+
+    <script>
+      const DATA = __DATA__;
+
+      __ZETA_JS__
+
+      /* ============================================================
+         tiny helpers
+         ============================================================ */
+      const $ = (id) => document.getElementById(id);
+      const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+      const fmt = (v, d = 4) => (v >= 1000 ? v.toFixed(0) : v.toFixed(d));
+      const sci = (v) => {
+        if (v === 0) return "0";
+        const e = Math.floor(Math.log10(Math.abs(v)));
+        return `${(v / Math.pow(10, e)).toFixed(2)}e${e >= 0 ? "+" : "−"}${Math.abs(e)}`;
+      };
+
+      // OKLCH -> sRGB (per the design system's colour space)
+      function oklchToRgb(L, C, hDeg) {
+        const h = (hDeg * Math.PI) / 180;
+        const a = C * Math.cos(h);
+        const b = C * Math.sin(h);
+        const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+        const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+        const s_ = L - 0.0894841775 * a - 1.291485548 * b;
+        const l = l_ ** 3,
+          m = m_ ** 3,
+          s = s_ ** 3;
+        let r = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+        let g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+        let bb = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
+        const enc = (x) => {
+          x = clamp(x, 0, 1);
+          return x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055;
+        };
+        return [enc(r) * 255, enc(g) * 255, enc(bb) * 255];
+      }
+
+      /* colour ramp for |zeta|: bg -> purple -> electric blue -> near white */
+      const RAMP_STOPS = [
+        [0.0, 0.16, 0.0, 0],
+        [0.18, 0.24, 0.07, 290],
+        [0.42, 0.4, 0.16, 275],
+        [0.68, 0.56, 0.21, 262],
+        [0.88, 0.74, 0.14, 248],
+        [1.0, 0.9, 0.06, 250],
+      ];
+      const RAMP = new Uint8ClampedArray(256 * 3);
+      for (let i = 0; i < 256; i++) {
+        const u = i / 255;
+        let k = 0;
+        while (k < RAMP_STOPS.length - 2 && u > RAMP_STOPS[k + 1][0]) k++;
+        const a = RAMP_STOPS[k],
+          b = RAMP_STOPS[k + 1];
+        const w = (u - a[0]) / (b[0] - a[0] || 1);
+        const [r, g, bl] = oklchToRgb(
+          a[1] + (b[1] - a[1]) * w,
+          a[2] + (b[2] - a[2]) * w,
+          a[3] + (b[3] - a[3]) * w,
+        );
+        RAMP[i * 3] = r;
+        RAMP[i * 3 + 1] = g;
+        RAMP[i * 3 + 2] = bl;
+      }
+
+      function setupCanvas(cv) {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const rect = cv.getBoundingClientRect();
+        const cssW = rect.width || cv.parentElement.clientWidth || 700;
+        // remember the *logical* height once: assigning canvas.height rewrites the
+        // attribute, so re-reading it after a resize would double it every time
+        if (!cv.dataset.h) cv.dataset.h = cv.getAttribute("height") || "300";
+        const cssH = parseFloat(cv.dataset.h);
+        cv.width = Math.round(cssW * dpr);
+        cv.height = Math.round(cssH * dpr);
+        cv.style.height = cssH + "px";
+        const ctx = cv.getContext("2d");
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return { ctx, w: cssW, h: cssH };
+      }
+
+      /* ============================================================
+         01 — the critical strip
+         ============================================================ */
+      const strip = (() => {
+        const cv = $("strip");
+        let g; // {ctx,w,h}
+        const T0 = 12,
+          T1 = 26,
+          S0 = 0.02,
+          S1 = 0.98;
+        let bitmap = null, bw = 0, bh = 0;
+        let probe = { sig: 0.5, t: 14.1347 };
+        let showHunt = false;
+
+        function computeBitmap(w, h) {
+          const img = new ImageData(w, h);
+          const lo = -3.2,
+            hi = 0.9; // log10|zeta| range: the eyes of the zeros, and the plateaus between
+          for (let j = 0; j < h; j++) {
+            // row 0 is the top of the plot, i.e. the largest t (canvas y grows down)
+            const t = T1 - ((T1 - T0) * j) / (h - 1);
+            for (let i = 0; i < w; i++) {
+              const sig = S0 + ((S1 - S0) * i) / (w - 1);
+              const v = Math.log10(absZeta(sig, t) + 1e-300);
+              const u = clamp((v - lo) / (hi - lo), 0, 1);
+              const c = Math.round(u * 255) * 3;
+              const p = (j * w + i) * 4;
+              img.data[p] = RAMP[c];
+              img.data[p + 1] = RAMP[c + 1];
+              img.data[p + 2] = RAMP[c + 2];
+              img.data[p + 3] = 255;
+            }
+          }
+          return img;
+        }
+
+        function draw() {
+          const { ctx, w, h } = g;
+          ctx.clearRect(0, 0, w, h);
+          if (bitmap) {
+            const off = document.createElement("canvas");
+            off.width = bw;
+            off.height = bh;
+            off.getContext("2d").putImageData(bitmap, 0, 0);
+            ctx.imageSmoothingEnabled = true;
+            ctx.drawImage(off, 0, 0, w, h);
+          }
+          const xOf = (s) => ((s - S0) / (S1 - S0)) * w;
+          const yOf = (t) => h - ((t - T0) / (T1 - T0)) * h;
+
+          // critical line
+          ctx.setLineDash([5, 5]);
+          ctx.strokeStyle = "rgba(240,244,255,0.55)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(xOf(0.5), 0);
+          ctx.lineTo(xOf(0.5), h);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // known zeros inside the window
+          ctx.fillStyle = "rgba(255,255,255,0.95)";
+          for (const z of DATA.zeros) {
+            if (z.gamma < T0 || z.gamma > T1) continue;
+            ctx.beginPath();
+            ctx.arc(xOf(0.5), yOf(z.gamma), 2.4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          // probe crosshair
+          ctx.strokeStyle = "rgba(120,180,255,0.85)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(xOf(probe.sig) - 13, yOf(probe.t));
+          ctx.lineTo(xOf(probe.sig) + 13, yOf(probe.t));
+          ctx.moveTo(xOf(probe.sig), yOf(probe.t) - 13);
+          ctx.lineTo(xOf(probe.sig), yOf(probe.t) + 13);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(xOf(probe.sig), yOf(probe.t), 4.5, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(255,255,255,0.9)";
+          ctx.stroke();
+
+          // sigma-profile sweep line (the hunt)
+          if (showHunt) {
+            ctx.strokeStyle = "rgba(160,120,255,0.85)";
+            ctx.setLineDash([2, 4]);
+            ctx.beginPath();
+            ctx.moveTo(0, yOf(probe.t));
+            ctx.lineTo(w, yOf(probe.t));
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+
+          // axis labels
+          ctx.fillStyle = "rgba(200,205,220,0.55)";
+          ctx.font = "11px 'JetBrains Mono', monospace";
+          ctx.fillText("Re s = 0", 8, h - 10);
+          ctx.fillText("σ = ½", xOf(0.5) + 7, h - 10);
+          ctx.fillText("Re s = 1", w - 62, h - 10);
+          ctx.fillText("t = " + T1.toFixed(0), 8, 16);
+          ctx.fillText("t = " + T0.toFixed(0), 8, h - 26);
+        }
+
+        function updateProbe() {
+          const v = absZeta(probe.sig, probe.t);
+          $("ro-s").textContent = `${probe.sig.toFixed(4)} + ${probe.t.toFixed(4)} i`;
+          $("ro-abs").textContent = sci(v);
+          $("ro-gap").textContent = (probe.sig - 0.5 >= 0 ? "+" : "−") + Math.abs(probe.sig - 0.5).toFixed(6);
+          let best = Infinity,
+            bestZ = null;
+          for (const z of DATA.zeros) {
+            const d = Math.hypot(probe.sig - 0.5, probe.t - z.gamma);
+            if (d < best) {
+              best = d;
+              bestZ = z;
+            }
+          }
+          $("ro-near").textContent = bestZ
+            ? `γ=${bestZ.gamma.toFixed(4)} · Δ=${best.toFixed(4)}`
+            : "—";
+
+          // minimum along sigma at this t
+          let mBest = Infinity,
+            mArg = 0;
+          for (let i = 0; i <= 200; i++) {
+            const s = 0.02 + (0.96 * i) / 200;
+            const vv = absZeta(s, probe.t);
+            if (vv < mBest) {
+              mBest = vv;
+              mArg = s;
+            }
+          }
+          $("ro-min").textContent = `${mArg.toFixed(4)}  (|ζ|=${sci(mBest)})`;
+
+          const el = $("ro-verdict");
+          const nearZero = best < 0.25;
+          if (Math.abs(probe.sig - 0.5) < 1e-9 && nearZero) {
+            el.className = "verdict-line";
+            el.innerHTML =
+              "You are standing on a zero. It sits on σ = ½, exactly where RH predicts — and the minimum along σ for this t lands there too.";
+          } else if (Math.abs(probe.sig - 0.5) < 0.03) {
+            el.className = "verdict-line";
+            el.innerHTML = `On the line, valley floor. |ζ| = ${sci(v)} — the dip in σ is real and it is centred at 0.5, not beside it.`;
+          } else {
+            el.className = "verdict-line bad";
+            el.innerHTML = `Off the line: |ζ| = ${sci(v)}, gently rising. The valley exists only at σ = ½; step away and there is no zero to find.`;
+          }
+        }
+
+        function setProbeFromEvent(ev) {
+          const rect = cv.getBoundingClientRect();
+          const x = clamp((ev.clientX - rect.left) / rect.width, 0, 1);
+          const y = clamp((ev.clientY - rect.top) / rect.height, 0, 1);
+          probe.sig = S0 + (S1 - S0) * x;
+          probe.t = T1 - (T1 - T0) * y;
+          $("strip-t").value = probe.t.toFixed(2);
+          $("strip-t-val").textContent = probe.t.toFixed(2);
+          draw();
+          updateProbe();
+        }
+
+        function init() {
+          g = setupCanvas(cv);
+          bw = Math.min(720, Math.round(g.w));
+          bh = Math.min(420, Math.round(g.h));
+          const t0 = performance.now();
+          bitmap = computeBitmap(bw, bh);
+          console.log(`strip bitmap ${bw}x${bh} in ${Math.round(performance.now() - t0)} ms`);
+          draw();
+          updateProbe();
+
+          let dragging = false;
+          cv.addEventListener("pointerdown", (e) => {
+            dragging = true;
+            cv.setPointerCapture(e.pointerId);
+            setProbeFromEvent(e);
+          });
+          cv.addEventListener("pointermove", (e) => {
+            if (dragging) setProbeFromEvent(e);
+          });
+          cv.addEventListener("pointerup", () => (dragging = false));
+
+          $("strip-t").addEventListener("input", (e) => {
+            probe.t = parseFloat(e.target.value);
+            $("strip-t-val").textContent = probe.t.toFixed(2);
+            draw();
+            updateProbe();
+          });
+          $("strip-hunt").addEventListener("click", () => {
+            showHunt = !showHunt;
+            draw();
+            // snap the probe to the minimum along sigma
+            let mBest = Infinity,
+              mArg = 0.5;
+            for (let i = 0; i <= 400; i++) {
+              const s = 0.02 + (0.96 * i) / 400;
+              const v = absZeta(s, probe.t);
+              if (v < mBest) {
+                mBest = v;
+                mArg = s;
+              }
+            }
+            probe.sig = mArg;
+            draw();
+            updateProbe();
+          });
+          window.addEventListener("resize", () => {
+            g = setupCanvas(cv);
+            draw();
+          });
+        }
+        return {
+          init,
+          redraw: () => {
+            g = setupCanvas(cv);
+            draw();
+          },
+        };
+      })();
+
+      /* ============================================================
+         02 — Z(t)
+         ============================================================ */
+      const zplot = (() => {
+        const cv = $("zplot");
+        let g, start = 0, width = 40;
+
+        function draw() {
+          const { ctx, w, h } = g;
+          const padL = 8,
+            padR = 8,
+            padT = 14,
+            padB = 22;
+          const t0 = start,
+            t1 = start + width;
+          const N = 1300;
+          const vals = new Float64Array(N + 1);
+          let lo = Infinity,
+            hi = -Infinity;
+          for (let i = 0; i <= N; i++) {
+            const t = t0 + ((t1 - t0) * i) / N;
+            const v = Z(t);
+            vals[i] = v;
+            if (v < lo) lo = v;
+            if (v > hi) hi = v;
+          }
+          const m = 0.12 * (hi - lo);
+          lo -= m;
+          hi += m;
+          const X = (t) => padL + ((t - t0) / (t1 - t0)) * (w - padL - padR);
+          const Y = (v) => padT + (1 - (v - lo) / (hi - lo)) * (h - padT - padB);
+
+          ctx.clearRect(0, 0, w, h);
+          // zero line
+          ctx.strokeStyle = "rgba(200,210,230,0.18)";
+          ctx.beginPath();
+          ctx.moveTo(padL, Y(0));
+          ctx.lineTo(w - padR, Y(0));
+          ctx.stroke();
+
+          // zeros in window
+          const inWin = DATA.zeros.filter((z) => z.gamma > t0 && z.gamma < t1);
+          $("z-count").textContent = inWin.length;
+          for (const z of inWin) {
+            ctx.strokeStyle = "rgba(124,58,237,0.55)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(X(z.gamma), padT);
+            ctx.lineTo(X(z.gamma), h - padB);
+            ctx.stroke();
+          }
+
+          // the curve, with a gradient fill
+          const grad = ctx.createLinearGradient(0, padT, 0, h - padB);
+          grad.addColorStop(0, "rgba(0,132,255,0.28)");
+          grad.addColorStop(0.5, "rgba(0,132,255,0.06)");
+          grad.addColorStop(1, "rgba(124,58,237,0.22)");
+          ctx.beginPath();
+          ctx.moveTo(X(t0), Y(vals[0]));
+          for (let i = 1; i <= N; i++) ctx.lineTo(X(t0 + ((t1 - t0) * i) / N), Y(vals[i]));
+          ctx.lineTo(X(t1), Y(0));
+          ctx.lineTo(X(t0), Y(0));
+          ctx.closePath();
+          ctx.fillStyle = grad;
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.moveTo(X(t0), Y(vals[0]));
+          for (let i = 1; i <= N; i++) ctx.lineTo(X(t0 + ((t1 - t0) * i) / N), Y(vals[i]));
+          ctx.strokeStyle = "rgba(190,220,255,0.95)";
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
+
+          // zeros as dots
+          for (const z of inWin) {
+            ctx.beginPath();
+            ctx.arc(X(z.gamma), Y(0), 2.6, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(255,255,255,0.95)";
+            ctx.fill();
+          }
+
+          // captions
+          ctx.fillStyle = "rgba(200,205,220,0.5)";
+          ctx.font = "11px 'JetBrains Mono', monospace";
+          ctx.fillText(`t = ${t0.toFixed(1)}`, padL, h - 6);
+          ctx.fillText(`t = ${t1.toFixed(1)}`, w - padR - 54, h - 6);
+          ctx.fillText("Z=0", padL, Y(0) - 5);
+        }
+
+        function init() {
+          g = setupCanvas(cv);
+          draw();
+          $("z-start").addEventListener("input", (e) => {
+            start = parseFloat(e.target.value);
+            $("z-start-val").textContent = start.toFixed(1);
+            draw();
+          });
+          $("z-width").addEventListener("input", (e) => {
+            width = parseFloat(e.target.value);
+            $("z-width-val").textContent = width.toFixed(0);
+            draw();
+          });
+          window.addEventListener("resize", () => {
+            g = setupCanvas(cv);
+            draw();
+          });
+        }
+        return {
+          init,
+          redraw: () => {
+            g = setupCanvas(cv);
+            draw();
+          },
+        };
+      })();
+
+      /* ============================================================
+         03 — counting table
+         ============================================================ */
+      function initCounts() {
+        const body = $("count-body");
+        for (const c of DATA.counts) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${c.T.toFixed(0)}</td>
+            <td>${c.on_line_zeros}</td>
+            <td>${c.strip_zeros_winding.toFixed(4)} <span class="dim">→</span> ${c.strip_zeros}</td>
+            <td class="${c.match ? "good" : ""}">${c.match ? "✓ exact" : "✗"}</td>`;
+          body.appendChild(tr);
+        }
+      }
+
+      /* ============================================================
+         04 — explicit formula
+         ============================================================ */
+      const psi = (() => {
+        const cv = $("psi");
+        let g, K = 25;
+        const curve = DATA.explicit_curve; // [{x, psi, explicit}] over x = 4..300
+        // the elementary part of the explicit formula
+        const mainTerm = (x) => x - Math.log(2 * Math.PI) - 0.5 * Math.log(1 - 1 / (x * x));
+        const gammas = DATA.zeros.map((z) => z.gamma);
+        const NZ = gammas.length;
+        const NX = curve.length;
+        const partial = new Float64Array(NX * (NZ + 1)); // partial[K*NX + i]
+
+        // precompute the (negative) zero-sum contribution, accumulated zero by zero
+        function build() {
+          const acc = new Float64Array(NX);
+          for (let k = 0; k < NZ; k++) {
+            const gam = gammas[k];
+            for (let i = 0; i < NX; i++) {
+              const x = curve[i].x;
+              const logx = Math.log(x);
+              // x^{rho} = x^{1/2} e^{i gamma log x};  2 Re(x^rho / rho)
+              const mag = Math.sqrt(x);
+              const re = mag * Math.cos(gam * logx);
+              const im = mag * Math.sin(gam * logx);
+              const dr = 0.5,
+                di = gam;
+              const den = dr * dr + di * di;
+              const qr = (re * dr + im * di) / den;
+              acc[i] += 2 * qr;
+            }
+            partial.set(acc, (k + 1) * NX);
+          }
+        }
+
+        // primes count as prime powers (n = p^1): psi jumps there and the series
+        // converges to the midpoint, so they are excluded from the error statistic
+        function isPrimePower(n) {
+          for (let p = 2; p * p <= n; p++) {
+            if (n % p === 0) {
+              let m = n;
+              while (m % p === 0) m /= p;
+              return m === 1;
+            }
+          }
+          return true;
+        }
+        const rmsIdx = [];
+        for (let i = 0; i < NX; i++) if (!isPrimePower(curve[i].x)) rmsIdx.push(i);
+
+        function draw() {
+          const { ctx, w, h } = g;
+          const padL = 44,
+            padR = 12,
+            padT = 14,
+            padB = 24;
+          const x0 = 10,
+            x1 = 300;
+          let lo = Infinity,
+            hi = -Infinity;
+          for (let i = 0; i < NX; i++) {
+            const p = curve[i].psi;
+            const e = mainTerm(curve[i].x) - partial[K * NX + i];
+            lo = Math.min(lo, p, e);
+            hi = Math.max(hi, p, e);
+          }
+          const X = (x) => padL + ((x - x0) / (x1 - x0)) * (w - padL - padR);
+          const Y = (v) => padT + (1 - (v - lo) / (hi - lo)) * (h - padT - padB);
+
+          ctx.clearRect(0, 0, w, h);
+
+          // grid
+          ctx.strokeStyle = "rgba(160,170,190,0.1)";
+          ctx.fillStyle = "rgba(200,205,220,0.45)";
+          ctx.font = "10.5px 'JetBrains Mono', monospace";
+          for (let v = 0; v <= 300; v += 50) {
+            ctx.beginPath();
+            ctx.moveTo(padL, Y(v));
+            ctx.lineTo(w - padR, Y(v));
+            ctx.stroke();
+            ctx.fillText(String(v), 8, Y(v) + 3);
+          }
+
+          // psi(x) (true, from a sieve) as a step function
+          ctx.beginPath();
+          ctx.moveTo(X(curve[0].x), Y(curve[0].psi));
+          for (let i = 1; i < NX; i++) {
+            ctx.lineTo(X(curve[i].x), Y(curve[i - 1].psi));
+            ctx.lineTo(X(curve[i].x), Y(curve[i].psi));
+          }
+          ctx.strokeStyle = "rgba(150,160,185,0.75)";
+          ctx.lineWidth = 1.1;
+          ctx.stroke();
+
+          // explicit formula truncation
+          ctx.beginPath();
+          for (let i = 0; i < NX; i++) {
+            const yv = mainTerm(curve[i].x) - partial[K * NX + i];
+            if (i === 0) ctx.moveTo(X(curve[i].x), Y(yv));
+            else ctx.lineTo(X(curve[i].x), Y(yv));
+          }
+          ctx.strokeStyle = "rgba(96,180,255,0.95)";
+          ctx.lineWidth = 1.6;
+          ctx.stroke();
+
+          // legend
+          ctx.font = "11px 'JetBrains Mono', monospace";
+          ctx.fillStyle = "rgba(150,160,185,0.9)";
+          ctx.fillText("ψ(x) exact", padL + 8, padT + 12);
+          ctx.fillStyle = "rgba(96,180,255,0.95)";
+          ctx.fillText(`x − Σ over ${K} zeros`, padL + 8, padT + 27);
+          ctx.fillStyle = "rgba(200,205,220,0.45)";
+          ctx.fillText("x", w - padR - 10, h - 8);
+
+          // live error
+          let se = 0,
+            mx = 0;
+          for (const i of rmsIdx) {
+            const e = curve[i].psi - (mainTerm(curve[i].x) - partial[K * NX + i]);
+            se += e * e;
+            mx = Math.max(mx, Math.abs(e));
+          }
+          $("psi-rms").textContent = Math.sqrt(se / rmsIdx.length).toFixed(3);
+          $("psi-max").textContent = mx.toFixed(3);
+        }
+
+        function init() {
+          g = setupCanvas(cv);
+          build();
+          draw();
+          $("psi-k").addEventListener("input", (e) => {
+            K = parseInt(e.target.value, 10);
+            $("psi-k-val").textContent = K;
+            draw();
+          });
+          window.addEventListener("resize", () => {
+            g = setupCanvas(cv);
+            draw();
+          });
+        }
+        return {
+          init,
+          redraw: () => {
+            g = setupCanvas(cv);
+            draw();
+          },
+        };
+      })();
+
+      /* ============================================================
+         05 — hunt table
+         ============================================================ */
+      function initHunt() {
+        const body = $("hunt-body");
+        let worst = 0,
+          deepest = 0,
+          off = 0,
+          ratios = [];
+        for (const h of DATA.off_line) {
+          const gap = h.sigma_min - 0.5;
+          worst = Math.max(worst, Math.abs(gap));
+          deepest = Math.max(deepest, h.abs_zeta_on_line);
+          off = Math.max(off, h.abs_zeta_off_10);
+          ratios.push(h.abs_zeta_off_10 / Math.max(1e-18, h.abs_zeta_min));
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${h.n}</td>
+            <td>${h.gamma.toFixed(6)}</td>
+            <td class="good">${gap >= 0 ? "+" : "−"}${Math.abs(gap).toExponential(1).replace("e", "e")}</td>
+            <td>${h.abs_zeta_min.toExponential(1)}</td>
+            <td>${h.abs_zeta_off_10.toFixed(4)}</td>
+            <td>${(h.abs_zeta_off_10 / Math.max(1e-18, h.abs_zeta_min)).toExponential(1)}</td>`;
+          body.appendChild(tr);
+        }
+        $("hunt-worst").textContent = worst.toExponential(2);
+        $("hunt-deep").textContent = deepest.toExponential(2);
+        $("hunt-off").textContent = off.toFixed(4);
+        ratios.sort((a, b) => a - b);
+        $("hunt-ratio").textContent = `≈ ${sci(ratios[Math.floor(ratios.length / 2)])} : 1`;
+      }
+
+      /* ============================================================
+         06 — timeline
+         ============================================================ */
+      const TIMELINE = [
+        ["1859", "<b>Riemann</b> publishes <i>Über die Anzahl der Primzahlen unter einer gegebenen Grösse</i>; the conjecture appears as a remark.", false],
+        ["1896", "<b>Hadamard</b> and <b>de la Vallée Poussin</b> independently prove no zero lies on the line Re s = 1 — and get the Prime Number Theorem.", true],
+        ["1914", "<b>Hardy</b>: infinitely many zeros lie on the critical line.", false],
+        ["1921", "<b>Hardy–Littlewood</b>: the proportion on the line is at least something, but it tends to 0.", false],
+        ["1940", "<b>Ingham</b>: the zero-density bound that would stand for 84 years.", false],
+        ["1942", "<b>Selberg</b>: a positive proportion of zeros lie on the line.", true],
+        ["1974", "<b>Levinson</b>: at least ⅓ of the zeros are on the line.", true],
+        ["1985", "<b>Odlyzko–te Riele</b> disprove the Mertens conjecture — a warning about numerical patterns.", false],
+        ["1989", "<b>Conrey</b>: more than 40% (2/5) of the zeros are on the line.", true],
+        ["2004", "<b>Gourdon</b>: the first 10<sup>13</sup> zeros are verified — all on the line.", true],
+        ["2011", "Refinements (Bui–Conrey–Young and successors) push the proven proportion to ≈41.6%.", false],
+        ["2018", "<b>Rodgers–Tao</b> prove the Newman conjecture (Λ ≥ 0): the zeros are only barely on the line, if at all.", false],
+        ["2024", "<b>Guth–Maynard</b> break Ingham's 84-year-old zero-density bound using decoupling.", true],
+        ["2026", "A research model at Anthropic reports raising the proven on-line proportion from 41.6% to 67.25% by combining pair-correlation and Bombieri's 2000 work; checked by Conrey and Goldston, formalised in Lean. Not a proof — the authors say the technique has no path to one.", true],
+      ];
+      function initTimeline() {
+        const ul = $("timeline");
+        for (const [yr, what, key] of TIMELINE) {
+          const li = document.createElement("li");
+          if (key) li.className = "key";
+          li.innerHTML = `<span class="yr">${yr}</span><span class="what">${what}</span>`;
+          ul.appendChild(li);
+        }
+      }
+
+      /* ============================================================
+         counters + reveal
+         ============================================================ */
+      function initCounters() {
+        const els = document.querySelectorAll("[data-count]");
+        const io = new IntersectionObserver((entries) => {
+          for (const en of entries) {
+            if (!en.isIntersecting) continue;
+            const el = en.target;
+            const target = parseInt(el.dataset.count, 10);
+            const t0 = performance.now();
+            const dur = 900;
+            function step(now) {
+              const u = clamp((now - t0) / dur, 0, 1);
+              const e = 1 - Math.pow(1 - u, 3);
+              el.textContent = String(Math.round(target * e));
+              if (u < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+            io.unobserve(el);
+          }
+        });
+        els.forEach((el) => io.observe(el));
+      }
+
+      function initReveal() {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const en of entries) {
+              if (en.isIntersecting) {
+                en.target.classList.add("in");
+                io.unobserve(en.target);
+              }
+            }
+          },
+          { threshold: 0.08 },
+        );
+        document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+      }
+
+      /* ============================================================
+         go
+         ============================================================ */
+      initReveal();
+      initCounters();
+      initCounts();
+      initTimeline();
+      initHunt();
+      strip.init();
+      zplot.init();
+      psi.init();
+
+      // canvases are sized from layout, so re-measure once everything (fonts, CSS)
+      // has settled -- otherwise a first paint before layout freezes a stretched bitmap
+      const relayout = () => {
+        strip.redraw();
+        zplot.redraw();
+        psi.redraw();
+      };
+      window.addEventListener("load", () => requestAnimationFrame(relayout));
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => requestAnimationFrame(relayout));
+      }
+    </script>
+  </body>
+</html>
