@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cadbury | There's a glass and a half in everyone</title>
+    <meta
+      name="description"
+      content="Discover Cadbury chocolate — Dairy Milk, Twirl, Wispa and more. Explore our brands, recipes, gifts and 200 years of chocolate-making."
+    />
+    <meta name="theme-color" content="#3d1559" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234b1a6e'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='38' font-style='italic' fill='%23f7f1ff' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E" />
+    <link rel="preload" href="fonts/grand-hotel.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="fonts/yellowtail.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body id="top">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- ============ SVG sprite ============ -->
+    <svg class="sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m16.5 16.5 4 4" /></symbol>
+      <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l1 12H5L6 8Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" /></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></symbol>
+      <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15" /><path d="m13 6 6 6-6 6" /></symbol>
+      <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M20 12H5" /><path d="m11 6-6 6 6 6" /></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+      <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" /></symbol>
+      <symbol id="i-leaf" viewBox="0 0 32 32"><path d="M26 6c-9 0-16 4-16 12a8 8 0 0 0 16 0c0-4-2-8-4-10" /><path d="M6 26c2-6 6-10 12-12" /></symbol>
+      <symbol id="i-milk" viewBox="0 0 32 32"><path d="M13 4h6v5l4 6v13H9V15l4-6Z" /><path d="M9 18h14" /></symbol>
+      <symbol id="i-cocoa" viewBox="0 0 32 32"><ellipse cx="16" cy="16" rx="8" ry="12" transform="rotate(24 16 16)" /><path d="M10 24C14 18 20 12 24 9" /></symbol>
+      <symbol id="i-heart" viewBox="0 0 32 32"><path d="M16 27S5 20.5 5 13.5A6.5 6.5 0 0 1 16 9a6.5 6.5 0 0 1 11 4.5C27 20.5 16 27 16 27Z" /></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></symbol>
+      <symbol id="i-serves" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2" /><path d="M3 20a6 6 0 0 1 12 0" /><path d="M16 5.5a3 3 0 0 1 0 5.6M18 20a5.6 5.6 0 0 0-3-5" /></symbol>
+      <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17" cy="7" r="1.1" fill="currentColor" stroke="none" /></symbol>
+      <symbol id="i-tiktok" viewBox="0 0 24 24"><path d="M14 4v10.5a4 4 0 1 1-3.4-3.9" /><path d="M14 4c.4 2.4 2 4 4.5 4.2" /></symbol>
+      <symbol id="i-youtube" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="4" /><path d="m11 10 4 2-4 2z" /></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19" /></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 13 4 4L19 7" /></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 4 2.4 5.2 5.6.7-4.1 3.9 1 5.6-4.9-2.8-4.9 2.8 1-5.6L4 9.9l5.6-.7Z" /></symbol>
+    </svg>
+
+    <!-- ============ Announcement ============ -->
+    <div class="announce" id="announce">
+      <p>
+        Discover our brand new gifting shop —
+        <a href="#shop">click here to visit!</a>
+      </p>
+      <button type="button" class="announce__close" id="announceClose" aria-label="Dismiss announcement">
+        <svg class="ico"><use href="#i-close" /></svg>
+      </button>
+    </div>
+
+    <!-- ============ Header ============ -->
+    <header class="header" id="siteHeader">
+      <div class="shell header__inner">
+        <button type="button" class="icon-btn header__burger" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNav">
+          <svg class="ico"><use href="#i-menu" /></svg>
+        </button>
+
+        <a class="logo" href="#top" aria-label="Cadbury — home">
+          <span class="logo__script">Cadbury</span>
+          <span class="logo__sub">Since 1824</span>
+        </a>
+
+        <nav class="nav" aria-label="Primary">
+          <ul class="nav__list">
+            <li class="nav__item nav__item--mega" data-dropdown>
+              <button type="button" class="nav__link" aria-expanded="false" aria-controls="menuProducts">
+                Products
+                <svg class="ico nav__chev"><use href="#i-chevron" /></svg>
+              </button>
+              <div class="mega" id="menuProducts">
+                <div class="mega__grid">
+                  <div class="mega__col">
+                    <h3 class="mega__title">Bars</h3>
+                    <ul>
+                      <li><a href="#products">Dairy Milk</a></li>
+                      <li><a href="#products">Dairy Milk Fruit &amp; Nut</a></li>
+                      <li><a href="#products">Dairy Milk Caramel</a></li>
+                      <li><a href="#products">Dairy Milk Oreo</a></li>
+                      <li><a href="#products">Twirl Golden Dipped</a></li>
+                    </ul>
+                  </div>
+                  <div class="mega__col">
+                    <h3 class="mega__title">Sharing &amp; treats</h3>
+                    <ul>
+                      <li><a href="#products">Wispa</a></li>
+                      <li><a href="#products">Delights</a></li>
+                      <li><a href="#products">&amp;More</a></li>
+                      <li><a href="#products">Buttons</a></li>
+                      <li><a href="#products">Chunks</a></li>
+                    </ul>
+                  </div>
+                  <div class="mega__col">
+                    <h3 class="mega__title">Gifting</h3>
+                    <ul>
+                      <li><a href="#shop">Chocolate shop</a></li>
+                      <li><a href="#shop">Personalised bars</a></li>
+                      <li><a href="#shop">Hampers &amp; bundles</a></li>
+                      <li><a href="#shop">Gift cards</a></li>
+                    </ul>
+                  </div>
+                  <a class="mega__promo" href="#products">
+                    <img src="img/prod-twirl.jpg" alt="" loading="lazy" />
+                    <span class="mega__promo-tag">Limited edition</span>
+                    <span class="mega__promo-title">Twirl Golden Dipped</span>
+                    <span class="mega__promo-cta">Discover <svg class="ico"><use href="#i-arrow" /></svg></span>
+                  </a>
+                </div>
+              </div>
+            </li>
+
+            <li class="nav__item"><a class="nav__link" href="#recipes">Recipes</a></li>
+            <li class="nav__item"><a class="nav__link" href="#heritage">Our story</a></li>
+            <li class="nav__item" data-dropdown>
+              <button type="button" class="nav__link" aria-expanded="false" aria-controls="menuExplore">
+                Explore
+                <svg class="ico nav__chev"><use href="#i-chevron" /></svg>
+              </button>
+              <ul class="drop" id="menuExplore">
+                <li><a href="#giveaway">Competitions</a></li>
+                <li><a href="#giveaway">Latest campaigns</a></li>
+                <li><a href="#brands">Cadbury World</a></li>
+                <li><a href="#heritage">Sustainability</a></li>
+                <li><a href="#footer">FAQs</a></li>
+              </ul>
+            </li>
+            <li class="nav__item"><a class="nav__link" href="#shop">Shop</a></li>
+          </ul>
+        </nav>
+
+        <div class="header__actions">
+          <button type="button" class="icon-btn" id="searchBtn" aria-label="Search" aria-expanded="false">
+            <svg class="ico"><use href="#i-search" /></svg>
+          </button>
+          <button type="button" class="icon-btn icon-btn--bag" id="bagBtn" aria-label="Basket" aria-expanded="false" aria-controls="bagDrawer">
+            <svg class="ico"><use href="#i-bag" /></svg>
+            <span class="bag-count" id="bagCount" hidden>0</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ Mobile nav ============ -->
+    <div class="mobile-nav" id="mobileNav" aria-hidden="true" inert>
+      <div class="mobile-nav__head">
+        <span class="mobile-nav__label">Menu</span>
+        <button type="button" class="icon-btn" id="mobileClose" aria-label="Close menu">
+          <svg class="ico"><use href="#i-close" /></svg>
+        </button>
+      </div>
+      <nav aria-label="Mobile">
+        <ul class="m-nav">
+          <li>
+            <button type="button" class="m-nav__toggle" aria-expanded="false">
+              Products <svg class="ico"><use href="#i-chevron" /></svg>
+            </button>
+            <ul class="m-sub">
+              <li><a href="#products">All chocolate</a></li>
+              <li><a href="#products">Bars</a></li>
+              <li><a href="#products">Sharing</a></li>
+              <li><a href="#products">Gifting</a></li>
+            </ul>
+          </li>
+          <li><a class="m-nav__link" href="#recipes">Recipes</a></li>
+          <li><a class="m-nav__link" href="#heritage">Our story</a></li>
+          <li>
+            <button type="button" class="m-nav__toggle" aria-expanded="false">
+              Explore <svg class="ico"><use href="#i-chevron" /></svg>
+            </button>
+            <ul class="m-sub">
+              <li><a href="#giveaway">Competitions</a></li>
+              <li><a href="#brands">Cadbury World</a></li>
+              <li><a href="#footer">FAQs</a></li>
+            </ul>
+          </li>
+          <li><a class="m-nav__link" href="#shop">Shop</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-nav__foot">
+        <p>There's a glass and a half in everyone.</p>
+        <a class="btn btn--purple" href="#shop">Visit the chocolate shop</a>
+      </div>
+    </div>
+    <div class="scrim" id="scrim" hidden></div>
+
+    <main id="main">
+      <!-- ============ Hero carousel ============ -->
+      <section class="hero" id="hero" aria-label="Featured" aria-roledescription="carousel">
+        <div class="hero__slides">
+          <article class="slide is-active" data-slide="0" role="group" aria-roledescription="slide" aria-label="1 of 3">
+            <img class="slide__img" src="img/hero-1.jpg" alt="Chocolate chunks, cocoa beans and a cup of milk on cream linen" fetchpriority="high" />
+            <div class="slide__scrim"></div>
+            <div class="shell slide__inner">
+              <p class="eyebrow eyebrow--light">Our story</p>
+              <h1 class="slide__title">There&rsquo;s a <em class="script script--inline">glass and a half</em> in everyone</h1>
+              <p class="slide__text">
+                Since 1824 we&rsquo;ve believed generosity is the best ingredient. A glass and a half of
+                full cream milk in every half pound &mdash; and a little of it in all of us.
+              </p>
+              <div class="slide__actions">
+                <a class="btn btn--white" href="#heritage">Discover our story</a>
+                <a class="btn btn--ghost" href="#giveaway">Watch the film</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="slide" inert data-slide="1" role="group" aria-roledescription="slide" aria-label="2 of 3" aria-hidden="true">
+            <img class="slide__img" src="img/hero-2.jpg" alt="Friends breaking a bar of chocolate together over tea" loading="lazy" />
+            <div class="slide__scrim"></div>
+            <div class="shell slide__inner">
+              <p class="eyebrow eyebrow--light">Made for sharing</p>
+              <h2 class="slide__title">A little bit of what you <em class="script script--inline">fancy</em></h2>
+              <p class="slide__text">
+                Snap, share, repeat. Our best-loved bars, made with sustainably sourced cocoa and
+                that unmistakable Cadbury taste.
+              </p>
+              <div class="slide__actions">
+                <a class="btn btn--white" href="#products">Explore the range</a>
+                <a class="btn btn--ghost" href="#recipes">Find a recipe</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="slide" inert data-slide="2" role="group" aria-roledescription="slide" aria-label="3 of 3" aria-hidden="true">
+            <img class="slide__img" src="img/hero-3.jpg" alt="Macro shot of a chocolate square with flowing caramel" loading="lazy" />
+            <div class="slide__scrim"></div>
+            <div class="shell slide__inner">
+              <p class="eyebrow eyebrow--light">Limited edition</p>
+              <h2 class="slide__title">Twirl <em class="script script--inline">Golden Dipped</em></h2>
+              <p class="slide__text">
+                Iconic swirls and curls, dipped in caramelised white chocolate for a smooth, rich
+                chocolate hit. Here for a good time, not a long time.
+              </p>
+              <div class="slide__actions">
+                <a class="btn btn--white" href="#products">Discover Twirl</a>
+                <a class="btn btn--ghost" href="#shop">Shop gifting</a>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="hero__ui shell">
+          <div class="hero__dots" role="tablist" aria-label="Choose slide">
+            <button type="button" class="dot is-active" role="tab" aria-selected="true" aria-label="Slide 1" data-goto="0"></button>
+            <button type="button" class="dot" role="tab" aria-selected="false" aria-label="Slide 2" data-goto="1"></button>
+            <button type="button" class="dot" role="tab" aria-selected="false" aria-label="Slide 3" data-goto="2"></button>
+          </div>
+          <div class="hero__arrows">
+            <button type="button" class="round-btn" id="prevSlide" aria-label="Previous slide"><svg class="ico"><use href="#i-arrow-left" /></svg></button>
+            <button type="button" class="round-btn" id="nextSlide" aria-label="Next slide"><svg class="ico"><use href="#i-arrow" /></svg></button>
+          </div>
+        </div>
+        <div class="hero__progress"><span id="heroProgress"></span></div>
+      </section>
+
+      <!-- ============ Ticker ============ -->
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker__track">
+          <span>There&rsquo;s a glass and a half in everyone</span><span class="ticker__star">✶</span>
+          <span>Made with sustainably sourced cocoa</span><span class="ticker__star">✶</span>
+          <span>A glass and a half of full cream milk</span><span class="ticker__star">✶</span>
+          <span>Generosity tastes better shared</span><span class="ticker__star">✶</span>
+          <span>There&rsquo;s a glass and a half in everyone</span><span class="ticker__star">✶</span>
+          <span>Made with sustainably sourced cocoa</span><span class="ticker__star">✶</span>
+          <span>A glass and a half of full cream milk</span><span class="ticker__star">✶</span>
+          <span>Generosity tastes better shared</span><span class="ticker__star">✶</span>
+        </div>
+      </div>
+
+      <!-- ============ Values ============ -->
+      <section class="values" aria-label="What makes Cadbury">
+        <div class="shell values__grid">
+          <article class="value reveal">
+            <svg class="value__icon"><use href="#i-milk" /></svg>
+            <h3>A glass and a half</h3>
+            <p>A glass and a half of full cream milk in every half pound of Dairy Milk.</p>
+          </article>
+          <article class="value reveal">
+            <svg class="value__icon"><use href="#i-leaf" /></svg>
+            <h3>Cocoa Life</h3>
+            <p>100% of our cocoa is sustainably sourced through the Cocoa Life programme.</p>
+          </article>
+          <article class="value reveal">
+            <svg class="value__icon"><use href="#i-heart" /></svg>
+            <h3>Generosity, always</h3>
+            <p>200 years of doing business the Quaker way &mdash; people before profit.</p>
+          </article>
+          <article class="value reveal">
+            <svg class="value__icon"><use href="#i-cocoa" /></svg>
+            <h3>Real ingredients</h3>
+            <p>No artificial colours or preservatives. Just chocolate, done properly.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============ Products ============ -->
+      <section class="products" id="products">
+        <div class="shell">
+          <header class="section-head">
+            <div>
+              <p class="eyebrow">The chocolate aisle</p>
+              <h2 class="h2">Our favourite <em class="script">chocolate</em></h2>
+            </div>
+            <div class="filters" role="tablist" aria-label="Filter products">
+              <button type="button" class="chip is-active" role="tab" aria-selected="true" data-filter="all">All</button>
+              <button type="button" class="chip" role="tab" aria-selected="false" data-filter="bars">Bars</button>
+              <button type="button" class="chip" role="tab" aria-selected="false" data-filter="sharing">Sharing</button>
+              <button type="button" class="chip" role="tab" aria-selected="false" data-filter="gifting">Gifting</button>
+              <button type="button" class="chip" role="tab" aria-selected="false" data-filter="new">New in</button>
+            </div>
+          </header>
+
+          <div class="product-grid" id="productGrid">
+            <!-- product cards injected by script.js -->
+          </div>
+          <p class="products__empty" id="productsEmpty" hidden>No chocolate here yet — try another filter.</p>
+
+          <div class="products__foot">
+            <p><svg class="ico"><use href="#i-star" /></svg> Free delivery on orders over £30 · Add a note at checkout</p>
+            <a class="link-arrow" href="#shop">See all products <svg class="ico"><use href="#i-arrow" /></svg></a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Shop split ============ -->
+      <section class="shop" id="shop">
+        <div class="shell shop__grid">
+          <div class="shop__media reveal">
+            <img src="img/shop.jpg" alt="A Cadbury gift box filled with chocolate, tied with ribbon" loading="lazy" />
+            <span class="shop__stamp">
+              <span class="script">Gift</span>
+              <span>wrapped by us</span>
+            </span>
+          </div>
+          <div class="shop__copy reveal">
+            <p class="eyebrow">The Cadbury chocolate shop</p>
+            <h2 class="h2">Thoughtful gifts, <em class="script">made for sharing</em></h2>
+            <p class="lede">
+              Personalised chocolate, well-loved favourites and gift-ready hampers &mdash; made for
+              celebrating, thanking and bringing people together.
+            </p>
+            <ul class="ticks">
+              <li><svg class="ico"><use href="#i-check" /></svg> Free personalisation on selected bars</li>
+              <li><svg class="ico"><use href="#i-check" /></svg> Handwritten gift notes, on us</li>
+              <li><svg class="ico"><use href="#i-check" /></svg> Next-day delivery before 4pm</li>
+            </ul>
+            <div class="shop__actions">
+              <a class="btn btn--purple" href="#products">Explore the shop</a>
+              <a class="link-arrow" href="#brands">Browse brands <svg class="ico"><use href="#i-arrow" /></svg></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Recipes ============ -->
+      <section class="recipes" id="recipes">
+        <div class="shell">
+          <header class="section-head section-head--center">
+            <div>
+              <p class="eyebrow">In the kitchen</p>
+              <h2 class="h2">Our favourite <em class="script">recipes</em></h2>
+              <p class="lede lede--center">Simple, joyful bakes made better with a little Cadbury.</p>
+            </div>
+          </header>
+
+          <div class="recipes__grid">
+            <a class="recipe recipe--a reveal" href="#recipes">
+              <img class="recipe__media" src="img/prod-caramel.jpg" alt="Chocolate and caramel squares" loading="lazy" />
+              <span class="recipe__badge">Most loved</span>
+              <span class="recipe__name script">Caramel Crispies</span>
+              <span class="recipe__meta">
+                <span><svg class="ico"><use href="#i-clock" /></svg> 10 mins</span>
+                <span><svg class="ico"><use href="#i-serves" /></svg> 10 servings</span>
+              </span>
+              <span class="recipe__cta">View recipe <svg class="ico"><use href="#i-arrow" /></svg></span>
+            </a>
+
+            <a class="recipe recipe--b reveal" href="#recipes">
+              <img class="recipe__media" src="img/hero-2.jpg" alt="Chocolate being shared at a kitchen table" loading="lazy" />
+              <span class="recipe__name script">Cheryl&rsquo;s Tiffin Cake</span>
+              <span class="recipe__meta">
+                <span><svg class="ico"><use href="#i-clock" /></svg> 15 mins</span>
+                <span><svg class="ico"><use href="#i-serves" /></svg> 8 servings</span>
+              </span>
+              <span class="recipe__cta">View recipe <svg class="ico"><use href="#i-arrow" /></svg></span>
+            </a>
+
+            <div class="recipe recipe--c reveal">
+              <span class="recipe__eyebrow">Baking club</span>
+              <span class="recipe__name script">200 years of<br />recipes</span>
+              <p class="recipe__text">From the first Dairy Milk bake to today&rsquo;s favourites.</p>
+              <a class="btn btn--white btn--sm" href="#heritage">See all recipes</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Giveaway / countdown ============ -->
+      <section class="giveaway" id="giveaway">
+        <div class="shell giveaway__inner">
+          <div>
+            <p class="eyebrow eyebrow--light">Competition</p>
+            <h2 class="h2 h2--light">Giveaway, <em class="script">give away</em></h2>
+            <p class="giveaway__text">
+              1,000s of cash prizes &mdash; and the best bit? You get to give them away to anyone you
+              like. A competition you can&rsquo;t win, but someone you love can.
+            </p>
+            <a class="btn btn--white" href="#giveaway">Enter now</a>
+          </div>
+          <div class="countdown" aria-live="polite">
+            <p class="countdown__label">Entries close in</p>
+            <div class="countdown__grid">
+              <div><span id="cdDays">00</span><small>days</small></div>
+              <div><span id="cdHours">00</span><small>hrs</small></div>
+              <div><span id="cdMins">00</span><small>min</small></div>
+              <div><span id="cdSecs">00</span><small>sec</small></div>
+            </div>
+            <p class="countdown__fine">UK &amp; ROI, 18+. Purchase required. T&amp;Cs apply.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Heritage timeline ============ -->
+      <section class="heritage" id="heritage">
+        <div class="shell">
+          <header class="section-head">
+            <div>
+              <p class="eyebrow">Since 1824</p>
+              <h2 class="h2">200 years of <em class="script">Cadbury</em></h2>
+            </div>
+            <p class="section-head__aside">
+              From a grocery shop in Birmingham to the chocolate we know today &mdash; here&rsquo;s how
+              the &ldquo;glass and a half&rdquo; company came to be.
+            </p>
+          </header>
+
+          <ol class="timeline">
+            <li class="timeline__item reveal">
+              <span class="timeline__year">1824</span>
+              <h3>John Cadbury opens a shop</h3>
+              <p>A small grocer on Bull Street, Birmingham, selling tea, coffee and drinking chocolate.</p>
+            </li>
+            <li class="timeline__item reveal">
+              <span class="timeline__year">1861</span>
+              <h3>The brothers take over</h3>
+              <p>Richard and George move the business to Bournville &mdash; a village built for its workers.</p>
+            </li>
+            <li class="timeline__item reveal">
+              <span class="timeline__year">1905</span>
+              <h3>Dairy Milk is born</h3>
+              <p>George Cadbury Jr creates a bar with more milk than anyone thought possible.</p>
+            </li>
+            <li class="timeline__item reveal">
+              <span class="timeline__year">1928</span>
+              <h3>A glass and a half</h3>
+              <p>The famous glass-and-a-half symbol appears on the Dairy Milk wrapper for the first time.</p>
+            </li>
+            <li class="timeline__item reveal">
+              <span class="timeline__year">2024</span>
+              <h3>Two centuries of generosity</h3>
+              <p>Still made in Bournville, still celebrating the glass and a half in everyone.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ============ Brands ============ -->
+      <section class="brands" id="brands">
+        <div class="shell">
+          <header class="section-head">
+            <div>
+              <p class="eyebrow">The family</p>
+              <h2 class="h2">Cadbury <em class="script">brands</em></h2>
+            </div>
+            <p class="section-head__aside">
+              From Dairy Milk to Boost, Twirl to Wispa &mdash; explore the full Cadbury family and find
+              your favourite, old and new.
+            </p>
+          </header>
+
+          <div class="brand-grid">
+            <a class="brand reveal" href="#products"><span class="brand__name script">Dairy Milk</span><span class="brand__tag">Since 1905</span></a>
+            <a class="brand reveal" href="#products"><span class="brand__name script">Twirl</span><span class="brand__tag">Swirls &amp; curls</span></a>
+            <a class="brand reveal" href="#products"><span class="brand__name script">Wispa</span><span class="brand__tag">Bubbly</span></a>
+            <a class="brand reveal" href="#products"><span class="brand__name script">Boost</span><span class="brand__tag">Biscuit crunch</span></a>
+            <a class="brand reveal" href="#products"><span class="brand__name script">Buttons</span><span class="brand__tag">Little lovelies</span></a>
+            <a class="brand reveal" href="#products"><span class="brand__name script">Delights</span><span class="brand__tag">Under 100 kcal</span></a>
+            <a class="brand reveal" href="#products"><span class="brand__name script">Flake</span><span class="brand__tag">The crumbliest</span></a>
+            <a class="brand reveal" href="#products"><span class="brand__name script">&amp;More</span><span class="brand__tag">New look</span></a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Newsletter ============ -->
+      <section class="newsletter" id="newsletter">
+        <div class="shell newsletter__inner">
+          <div class="newsletter__copy">
+            <p class="eyebrow eyebrow--light">Treat your inbox</p>
+            <h2 class="h2 h2--light">Sign up and <em class="script">taste</em> the news first</h2>
+            <p>Exclusive offers, new chocolate treats, gifting ideas and more. No spam &mdash; just the good stuff.</p>
+          </div>
+          <form class="signup" id="signupForm" novalidate>
+            <div class="signup__field">
+              <label class="visually-hidden" for="email">Email address</label>
+              <input id="email" name="email" type="email" placeholder="Your email address" autocomplete="email" required aria-describedby="signupError" />
+              <button class="btn btn--white" type="submit">Sign up</button>
+            </div>
+            <p class="signup__error" id="signupError" role="alert" hidden></p>
+            <p class="signup__fine">
+              By signing up you agree to our <a href="#footer">privacy notice</a>. Unsubscribe any time.
+            </p>
+          </form>
+        </div>
+        <span class="newsletter__glow" aria-hidden="true"></span>
+      </section>
+    </main>
+
+    <!-- ============ Footer ============ -->
+    <footer class="footer" id="footer">
+      <div class="shell">
+        <div class="footer__top">
+          <a class="logo logo--footer" href="#top" aria-label="Cadbury — back to top">
+            <span class="logo__script">Cadbury</span>
+            <span class="logo__sub">Since 1824</span>
+          </a>
+          <ul class="socials">
+            <li><a href="#top" aria-label="Cadbury on Instagram"><svg class="ico"><use href="#i-instagram" /></svg></a></li>
+            <li><a href="#top" aria-label="Cadbury on TikTok"><svg class="ico"><use href="#i-tiktok" /></svg></a></li>
+            <li><a href="#top" aria-label="Cadbury on YouTube"><svg class="ico"><use href="#i-youtube" /></svg></a></li>
+            <li><a href="#top" aria-label="Cadbury on X"><svg class="ico"><use href="#i-x" /></svg></a></li>
+          </ul>
+        </div>
+
+        <div class="footer__cols">
+          <div>
+            <h3>About</h3>
+            <ul>
+              <li><a href="#heritage">Our story</a></li>
+              <li><a href="#heritage">Timeline</a></li>
+              <li><a href="#brands">Sustainability</a></li>
+              <li><a href="#brands">Cadbury Foundation</a></li>
+              <li><a href="#giveaway">Latest campaigns</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3>Explore</h3>
+            <ul>
+              <li><a href="#giveaway">Competitions</a></li>
+              <li><a href="#recipes">Recipes</a></li>
+              <li><a href="#shop">Cadbury World</a></li>
+              <li><a href="#newsletter">Newsletter</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3>Products</h3>
+            <ul>
+              <li><a href="#products">View all brands</a></li>
+              <li><a href="#products">Bars &amp; sharing</a></li>
+              <li><a href="#shop">Gifting</a></li>
+              <li><a href="#products">Product information</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3>Need to know</h3>
+            <ul>
+              <li><a href="#footer">FAQs</a></li>
+              <li><a href="#footer">Contact us</a></li>
+              <li><a href="#footer">Privacy notice</a></li>
+              <li><a href="#footer">Terms &amp; conditions</a></li>
+              <li><a href="#footer">Cookie settings</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer__bottom">
+          <p class="footer__legal">
+            © <span id="year">2026</span> Cadbury clone — an unofficial, non-commercial design study.
+            Cadbury, Dairy Milk, Twirl, Wispa and related marks belong to Mondelez International.
+            Not affiliated with or endorsed by Mondelez. Imagery is illustrative.
+          </p>
+          <div class="footer__meta">
+            <span>Made with a glass and a half</span>
+            <button type="button" class="cookie" id="cookieBtn">Cookie settings</button>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ============ Search overlay ============ -->
+    <div class="search" id="search" aria-hidden="true" inert>
+      <div class="search__panel" role="dialog" aria-modal="true" aria-labelledby="searchTitle">
+        <div class="search__bar">
+          <svg class="ico"><use href="#i-search" /></svg>
+          <label class="visually-hidden" id="searchTitle" for="searchInput">Search Cadbury</label>
+          <input id="searchInput" type="search" placeholder="Search chocolate, recipes, gifts…" autocomplete="off" />
+          <button type="button" class="icon-btn" id="searchClose" aria-label="Close search"><svg class="ico"><use href="#i-close" /></svg></button>
+        </div>
+        <p class="search__hint">Popular: <button type="button" data-term="Dairy Milk">Dairy Milk</button><button type="button" data-term="Twirl">Twirl</button><button type="button" data-term="gift">Gifting</button><button type="button" data-term="Oreo">Oreo</button></p>
+        <ul class="search__results" id="searchResults"></ul>
+      </div>
+    </div>
+
+    <!-- ============ Basket drawer ============ -->
+    <div class="drawer" id="bagDrawer" aria-hidden="true" inert>
+      <div class="drawer__panel" role="dialog" aria-modal="true" aria-labelledby="bagTitle">
+        <div class="drawer__head">
+          <h2 id="bagTitle">Your basket</h2>
+          <button type="button" class="icon-btn" id="bagClose" aria-label="Close basket"><svg class="ico"><use href="#i-close" /></svg></button>
+        </div>
+        <div class="drawer__body">
+          <p class="bag-empty" id="bagEmpty">
+            <span class="script">Nothing in here yet</span>
+            Add a bar or two &mdash; there&rsquo;s a glass and a half in everyone.
+          </p>
+          <ul class="bag-list" id="bagList"></ul>
+        </div>
+        <div class="drawer__foot">
+          <div class="bag-row"><span>Subtotal</span><strong id="bagTotal">£0.00</strong></div>
+          <p class="bag-note" id="bagNote">Add £30.00 more for free delivery.</p>
+          <button type="button" class="btn btn--purple btn--block" id="checkoutBtn">Checkout</button>
+          <p class="bag-fine">This is a design demo &mdash; no payment will be taken.</p>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="to-top" id="toTop" aria-label="Back to top" hidden><svg class="ico"><use href="#i-arrow-left" /></svg></button>
+    <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+    <div class="cookie-modal" id="cookieModal" aria-hidden="true" inert>
+      <div class="cookie-modal__panel" role="dialog" aria-modal="true" aria-labelledby="cookieTitle">
+        <h2 id="cookieTitle">Cookie settings</h2>
+        <p>We use cookies to keep the basket working and to understand what people love. Choose what you&rsquo;re happy with.</p>
+        <label class="switch"><input type="checkbox" checked /> Essential cookies <small>Always on</small></label>
+        <label class="switch"><input type="checkbox" checked /> Analytics cookies</label>
+        <label class="switch"><input type="checkbox" /> Marketing cookies</label>
+        <div class="cookie-modal__actions">
+          <button type="button" class="btn btn--purple btn--block" id="cookieSave">Save preferences</button>
+          <button type="button" class="btn btn--quiet btn--block" id="cookieAccept">Accept all</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
